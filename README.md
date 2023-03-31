@@ -25,7 +25,7 @@ pip install -r requirements.txt
 │   └── README.md                         <- Detailed Instructions to prepare the Spotify data
 │
 │
-├── MachineLearningModelScripts
+├── Machine-Learning-Models
 │   ├── models                            <- Stores the pre-trained machine learning models
 │   ├── preprocessing                     <- Scripts to preprocess data
 │   ├── split                             <- Includes the data split used 
