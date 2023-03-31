@@ -1,0 +1,19 @@
+{
+    "git.ignoreLimitWarning": true,
+    "cSpell.words": [
+        "astype",
+        "aucs",
+        "autograd",
+        "fdesc",
+        "infile",
+        "irfft",
+        "librosa",
+        "linspace",
+        "randn",
+        "reconst",
+        "sklearn",
+        "soundfile",
+        "tqdm",
+        "unsqueeze"
+    ]
+}
