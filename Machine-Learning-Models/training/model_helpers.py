@@ -149,8 +149,4 @@ def get_scores(mode,model,list_to_iterate_on,batch_size,binary,data_path,input_l
         score = 1 - loss
         return score,loss,roc_auc,pr_auc
     else:
-        roc_auc, pr_auc = get_auc(est_array, gt_array)
-        print('loss: %.4f' % loss)
-        print('roc_auc: %.4f' % roc_auc)
-        print('pr_auc: %.4f' % pr_auc)
-
+        return loss,roc_auc,pr_auc

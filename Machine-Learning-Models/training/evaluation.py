@@ -6,6 +6,8 @@ import pandas as pd
 import pandas as pd
 import click
 import torch
+import matplotlib.pyplot as plt
+
 
 import model as Model
 from model_helpers import get_scores
@@ -64,6 +66,21 @@ class Evaluate(object):
             self.model.spec.mel_scale.fb = S['spec.mel_scale.fb']
         self.model.load_state_dict(S)
 
+    def plot_metrics(self,roc_auc, pr_auc, loss):
+        metrics = ['ROC AUC', 'PR AUC', 'Loss']
+        values = [roc_auc, pr_auc, loss]
+        
+        fig, ax = plt.subplots()
+        ax.bar(metrics, values)
+        ax.set_ylabel('Scores')
+        ax.set_title('Model Evaluation Metrics')
+        
+        for i, v in enumerate(values):
+            ax.text(i, v + 0.01, f"{v:.4f}", ha='center', fontsize=8)
+        
+        plt.show()
+
+
     def evaluate(self):
         """
         Perform evaluation
@@ -73,9 +90,12 @@ class Evaluate(object):
         tuple
             A tuple containing the evaluation scores and the loss score.
         """
-        get_scores(mode='evaluation',model=self.model,list_to_iterate_on=self.test_list,
-                    batch_size=self.batch_size,binary=self.binary,
-                    data_path=self.data_path,input_length=self.input_length)
+        validation_loss, validation_roc_auc, validation_pr_auc =get_scores(mode='evaluation',model=self.model,list_to_iterate_on=self.test_list,
+                                                                                            batch_size=self.batch_size,binary=self.binary,
+                                                                                            data_path=self.data_path,input_length=self.input_length)
+
+        self.plot_metrics(validation_roc_auc, validation_pr_auc, validation_loss)
+        print(validation_loss, validation_roc_auc,validation_pr_auc)
 
 
 @click.command()
@@ -93,12 +113,17 @@ def run(model_name, batch_size,model_load_path, data_path):
         model_load_path: path to load the saved model
         data_path: path to the data directory
     """
-    config = {
-        'model_name': model_name,
-        'batch_size': batch_size,
-        'model_load_path': model_load_path,
-        'data_path': data_path,
-    }
+    class Config:
+        def __init__(self, **kwargs):
+            self.__dict__.update(kwargs)
+
+    config = Config(
+        model_name=model_name,
+        batch_size=batch_size,
+        model_load_path=model_load_path,
+        data_path=data_path,
+    )
+
     evaluate = Evaluate(config)
     evaluate.evaluate()
 

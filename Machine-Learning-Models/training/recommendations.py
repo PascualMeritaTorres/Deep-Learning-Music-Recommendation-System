@@ -223,13 +223,18 @@ def run(model_name, batch_size, model_load_path, data_song_path, dataset_path):
         data_song_path: Path to the test song
         dataset_path: Path to the dataset
     """
-    config = {
-        'model_name': model_name,
-        'batch_size': batch_size,
-        'model_load_path': model_load_path,
-        'data_song_path': data_song_path,
-        'dataset_path': dataset_path
-    }
+    class Config:
+        def __init__(self, **kwargs):
+            self.__dict__.update(kwargs)
+
+    config = Config(
+        model_name=model_name,
+        batch_size=batch_size,
+        model_load_path=model_load_path,
+        data_song_path=data_song_path,
+        dataset_path=dataset_path
+    )
+
     print(config)
     s = RetrieveSimilarSongs(config)
     recommendations = s.give_song_recommendations()
