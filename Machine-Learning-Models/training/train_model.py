@@ -103,125 +103,133 @@ class TrainingLogic(object):
         Train the PyTorch model.
         """
         # Initialize training variables
-        start_t = time.time()
+        start_time = time.time()
         current_optimizer = 'adam'
-        reconst_loss = nn.BCELoss() #Binary Cross Entropy Loss
-        best_metric = 0 #stores the best result we have gotten so far
-        drop_counter = 0 #used to decide which optimizer to use
+        reconstruction_loss = nn.BCELoss() # Binary Cross Entropy Loss
+        best_metric_so_far = 0 # stores the best result obtained so far
+        drop_counter = 0 # used to decide which optimizer to use
 
         # Training loop
         for epoch in range(self.number_of_epochs):
-            ctr = 0 
-            drop_counter += 1 #increase the drop counter
-            self.model = self.model.train() #Set the model in training mode
+            batch_counter = 0 
+            drop_counter += 1 # increase the drop counter
+            self.model = self.model.train() # set the model in training mode
 
             # Iterate over data batches
-            for x, y in self.data_loader: #x is the .npy of the song, y is the binary tags
-                ctr += 1
+            for x, y in self.data_loader: # x is the sliced .npy of the song, y is the binary tags
+                batch_counter += 1
 
                 # Forward pass
-                x=Variable(x)
-                y=Variable(y)
-                out = self.model(x) #Pass the numpy array into the model
+                x_input = Variable(x)
+                y_target = Variable(y)
+                model_output = self.model(x_input) # Pass the numpy array into the model
 
                 # Backward pass
-                loss = reconst_loss(out, y) #compare the actual tags (y) with the ones outputted from the model
-                self.optimizer.zero_grad() #Set all gradients to 0
-                loss.backward() #Compute gradient
-                self.optimizer.step() #Update parameters
+                batch_loss = reconstruction_loss(model_output, y_target) # compare the actual tags (y) with the ones outputted from the model
+                self.optimizer.zero_grad() # Set all gradients to 0
+                batch_loss.backward() # Compute gradient
+                self.optimizer.step() # Update parameters
 
                 # Log the training progress
-                self.print_log(epoch, ctr, loss, start_t)
-            self.writer.add_scalar('Loss/train', loss.item(), epoch)
+                self.print_log(epoch, batch_counter, batch_loss, start_time)
+            self.writer.add_scalar('Loss/train', batch_loss.item(), epoch)
 
             # Perform validation and update the best metric
-            best_metric = self.get_validation(best_metric, epoch) #Calculate the Binary Cross Entropy loss of our current model using the validation set
+            best_metric_so_far = self.get_validation(best_metric_so_far, epoch) # Calculate the Binary Cross Entropy loss of our current model using the validation set
 
             # Update the optimizer accordingly
             current_optimizer, drop_counter = self.modify_optimizer_accordingly(current_optimizer, drop_counter)
 
         print("[%s] Train finished. Elapsed: %s"
-                % (datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
-                    datetime.timedelta(seconds=time.time() - start_t)))
+            % (datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+                datetime.timedelta(seconds=time.time() - start_time)))
 
-    def modify_optimizer_accordingly(self, current_optimizer, drop_counter):
+
+    def modify_optimizer_accordingly(self, current_optimizer_name, drop_counter):
         """
         Update the optimizer based on the value of the drop counter.
 
         Parameters:
-        - current_optimizer: the name of the current optimizer
+        - current_optimizer_name: the name of the current optimizer
         - drop_counter: a counter used to decide which optimizer to use
 
         Returns:
-        - current_optimizer: the name of the current optimizer
-        - drop_counter: the updated value of the drop counter
+        - updated_optimizer_name: the name of the updated optimizer
+        - updated_drop_counter: the updated value of the drop counter
         """
         
         # Update the model with the best saved model
         self.load_saved_model(os.path.join(self.model_save_path, 'best_model.pth'))
 
         # Update the optimizer based on the drop_counter value
-        if current_optimizer == 'adam' and drop_counter == 80:
-            self.optimizer = torch.optim.SGD(self.model.parameters(), 0.001,
+        if current_optimizer_name == 'adam' and drop_counter == 80:
+            self.optimizer = torch.optim.SGD(self.model.parameters(), lr=0.001,
                                             momentum=0.9, weight_decay=0.0001,
                                             nesterov=True)
-            current_optimizer = 'sgd_1'
+            updated_optimizer_name = 'sgd_1'
             drop_counter = 0
-            print('sgd 1e-3')
-        if current_optimizer == 'sgd_1' and drop_counter == 20:
+            print('SGD optimizer with learning rate 1e-3')
+        if current_optimizer_name == 'sgd_1' and drop_counter == 20:
             for pg in self.optimizer.param_groups:
                 pg['lr'] = 0.0001
-            current_optimizer = 'sgd_2'
+            updated_optimizer_name = 'sgd_2'
             drop_counter = 0
-            print('sgd 1e-4')
-        if current_optimizer == 'sgd_2' and drop_counter == 20:
+            print('SGD optimizer with learning rate 1e-4')
+        if current_optimizer_name == 'sgd_2' and drop_counter == 20:
             for pg in self.optimizer.param_groups:
                 pg['lr'] = 0.00001
-            current_optimizer = 'sgd_3'
-            print('sgd 1e-5')
-        return current_optimizer, drop_counter
+            updated_optimizer_name = 'sgd_3'
+            print('SGD optimizer with learning rate 1e-5')
+        return updated_optimizer_name, drop_counter
 
-    def print_log(self, epoch, ctr, loss, start_t):
+
+    def print_log(self, epoch, iteration, loss, start_time):
         """
         Print the training progress log.
 
         Parameters:
         - epoch: the current epoch
-        - ctr: the current iteration
+        - iteration: the current iteration
         - loss: the current loss value
-        - start_t: the start time of training
+        - start_time: the start time of training
         """
         
         # Print the training progress log
-        if (ctr) % self.log_step == 0:
-            print("[%s] Epoch [%d/%d] Iter [%d/%d] train loss: %.4f Elapsed: %s" %
+        if (iteration) % self.log_step == 0:
+            print("[%s] Epoch [%d/%d] Iter [%d/%d] Train Loss: %.4f Elapsed Time: %s" %
                     (datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
-                        epoch+1, self.n_epochs, ctr, len(self.data_loader), loss.item(),
-                        datetime.timedelta(seconds=time.time()-start_t)))
+                        epoch+1, self.n_epochs, iteration, len(self.data_loader), loss.item(),
+                        datetime.timedelta(seconds=time.time()-start_time)))
 
-    def get_validation(self, best_metric, epoch):
+
+    def get_validation(self, best_validation_metric, epoch):
         """
-        Perform validation and update the best metric.
+        Perform validation and update the best validation metric.
 
         Parameters:
-        - best_metric: the current best validation metric
+        - best_validation_metric: the current best validation metric
         - epoch: the current epoch
 
         Returns:
-        - best_metric: the updated best validation metric
+        - updated_best_validation_metric: the updated best validation metric
         """
         
         # Get validation scores and loss
-        score,loss,roc_auc,pr_auc= get_scores(mode='training_validation',model=self.model,list_to_iterate_on=self.valid_list,batch_size=self.batch_size,
-                                              binary=self.binary,data_path=self.data_path,input_length=self.input_length)
-        self.writer.add_scalar('Loss/valid', loss, epoch)
-        self.writer.add_scalar('AUC/ROC', roc_auc, epoch)
-        self.writer.add_scalar('AUC/PR', pr_auc, epoch)
+        validation_score, validation_loss, validation_roc_auc, validation_pr_auc = get_scores(mode='training_validation',
+                                                                                                model=self.model,
+                                                                                                list_to_iterate_on=self.valid_list,
+                                                                                                batch_size=self.batch_size,
+                                                                                                binary=self.binary,
+                                                                                                data_path=self.data_path,
+                                                                                                input_length=self.input_length)
+        self.writer.add_scalar('Loss/Validation', validation_loss, epoch)
+        self.writer.add_scalar('AUC/ROC', validation_roc_auc, epoch)
+        self.writer.add_scalar('AUC/PR', validation_pr_auc, epoch)
 
-        # Update the best metric and save the best model if necessary
-        if score > best_metric:
+        # Update the best validation metric and save the best model if necessary
+        if validation_score > best_validation_metric:
             print('best model!')
-            best_metric = score
+            best_validation_metric = validation_score
             torch.save(self.model.state_dict(),
                     os.path.join(self.model_save_path, 'best_model.pth'))
-        return best_metric
+        return best_validation_metric

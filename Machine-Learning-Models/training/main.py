@@ -55,18 +55,22 @@ def run(parallel_threads, model_name, number_of_epochs, batch_size, learning_rat
         data_path: path to the data directory
         log_step: number of steps to log
     """
-    config = {
-        'parallel_threads': parallel_threads,
-        'model_name': model_name,
-        'number_of_epochs': number_of_epochs,
-        'batch_size': batch_size,
-        'learning_rate': learning_rate,
-        'use_tensorboard': use_tensorboard,
-        'model_save_path': model_save_path,
-        'model_load_path': model_load_path,
-        'data_path': data_path,
-        'log_step': log_step
-    }
+    class Config:
+        def __init__(self, **kwargs):
+            self.__dict__.update(kwargs)
+            
+    config = Config(
+        parallel_threads=parallel_threads,
+        model_name=model_name,
+        number_of_epochs=number_of_epochs,
+        batch_size=batch_size,
+        learning_rate=learning_rate,
+        use_tensorboard=use_tensorboard,
+        model_save_path=model_save_path,
+        model_load_path=model_load_path,
+        data_path=data_path,
+        log_step=log_step
+    )
     print(config)
     configure_and_train(config)
 
