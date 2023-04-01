@@ -106,7 +106,7 @@ class FCN(nn.Module):
                 f_min=0.0, # The lowest frequency in the Mel scale
                 f_max=8000.0, # The highest frequency in the Mel scale
                 n_mels=96, # The number of Mel frequency bands
-                n_classes=24): # The number of output classes for the model
+                n_classes=32): # The number of output classes for the model
         super(FCN, self).__init__()
 
         # Mel spectrogram

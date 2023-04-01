@@ -10,6 +10,7 @@ import torch.nn as nn
 import torch.optim
 from sklearn import metrics
 from torch.autograd import Variable
+from torch.optim.lr_scheduler import StepLR
 from torch.utils.tensorboard import SummaryWriter
 
 import model as Model
@@ -134,8 +135,9 @@ class TrainingLogic(object):
 
                 # Log the training progress
                 self.print_log(epoch, batch_counter, batch_loss, start_time)
-            self.writer.add_scalar('Loss/train', batch_loss.item(), epoch)
 
+
+            self.writer.add_scalar('Loss/train', batch_loss.item(), epoch)
             # Perform validation and update the best metric
             best_metric_so_far = self.get_validation(best_metric_so_far, epoch) # Calculate the Binary Cross Entropy loss of our current model using the validation set
 
@@ -152,25 +154,6 @@ class TrainingLogic(object):
         print("[%s] Train finished. Elapsed: %s"
             % (datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
                 datetime.timedelta(seconds=time.time() - start_time)))
-                
-
-    def print_log(self, epoch, iteration, loss, start_time):
-        """
-        Print the training progress log.
-
-        Parameters:
-        - epoch: the current epoch
-        - iteration: the current iteration
-        - loss: the current loss value
-        - start_time: the start time of training
-        """
-        
-        # Print the training progress log
-        if (iteration) % self.log_step == 0:
-            print("[%s] Epoch [%d/%d] Iter [%d/%d] Train Loss: %.4f Elapsed Time: %s" %
-                    (datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
-                        epoch+1, self.n_epochs, iteration, len(self.data_loader), loss.item(),
-                        datetime.timedelta(seconds=time.time()-start_time)))
 
 
     def get_validation(self, best_validation_metric, epoch):
@@ -204,3 +187,22 @@ class TrainingLogic(object):
             torch.save(self.model.state_dict(),
                     os.path.join(self.model_save_path, 'best_model.pth'))
         return best_validation_metric
+
+
+    def print_log(self, epoch, iteration, loss, start_time):
+        """
+        Print the training progress log.
+
+        Parameters:
+        - epoch: the current epoch
+        - iteration: the current iteration
+        - loss: the current loss value
+        - start_time: the start time of training
+        """
+        
+        # Print the training progress log
+        if (iteration) % self.log_step == 0:
+            print("[%s] Epoch [%d/%d] Iter [%d/%d] Train Loss: %.4f Elapsed Time: %s" %
+                    (datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+                        epoch+1, self.number_of_epochs, iteration, len(self.data_loader), loss.item(),
+                        datetime.timedelta(seconds=time.time()-start_time)))

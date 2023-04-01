@@ -4,6 +4,7 @@
 
 1. Create a new app in [Spotify for Developer's Dashboard](https://developer.spotify.com/dashboard)
 2. Retrieve the CLIENT_ID and CLIENT_SECRET of your app
+3. Set up a redirect url in your app. (Like 'http://localhost:8888/callback')
 3. Change the variables 'client_id' and 'client_secret' in spotify_mp3_download.ipynb to the ones retrieved in step 2
 4. Export the path variables. To do so execute the command:
 
@@ -16,6 +17,7 @@ and at the end of the document do:
 ```sh
 export SPOTIPY_CLIENT_ID='your_client_id'
 export SPOTIPY_CLIENT_SECRET='your_client_secret'
+export SPOTIPY_REDIRECT_URI='your_redirect_url'
 ```
 
 5. Execute:
