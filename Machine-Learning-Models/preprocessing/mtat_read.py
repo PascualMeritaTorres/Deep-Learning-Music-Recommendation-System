@@ -16,12 +16,12 @@ class Processor:
 		self.files = glob.glob(os.path.join(data_path, '**/*.mp3'), recursive=True)
 		##self.files = glob.glob(os.path.join(data_path, '**.mp3'), recursive=True)
 		#print(self.files)
-		self.npy_path = os.path.join(data_path,'npy2')
+		self.npy_path = os.path.join(data_path,'npy')
 		if not os.path.exists(self.npy_path):
 			os.makedirs(self.npy_path)
 
 	def get_npy(self, fn):
-		x, sr = librosa.core.load(fn, sr=self.fs)
+		x, sr = librosa.load(fn, sr=self.fs)
 		#audio = AudioSegment.from_file(fn)
 		#x = audio.get_array_of_samples()	
 		return x

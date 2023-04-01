@@ -5,6 +5,8 @@ from train_model import TrainingLogic
 from spotify_dataset_loader import data_loader
 import click
 
+from paths import DATA_PATH,MODEL_LOAD_PATH,MODEL_SAVE_PATH
+
 def configure_and_train(config):
     # Create the path for the models
     if not os.path.exists(config.model_save_path):
@@ -35,9 +37,9 @@ def configure_and_train(config):
 @click.option('--batch_size', type=int, default=8, help='number of samples passed through to the network at one time')
 @click.option('--learning_rate', type=float, default=1e-4, help='learning rate')
 @click.option('--use_tensorboard', type=int, default=1, help='use tensorboard for visualization')
-@click.option('--model_save_path', type=str, default='./../models', help='path to save the trained model')
-@click.option('--model_load_path', type=str, default='.', help='path to load the saved model')
-@click.option('--data_path', type=str, default='/Users/pascualmeritatorres/Developer/Dissertation/actual-dissertation/Dataset-Creation-And-Preprocessing/notebooks/mp3', help='path to the data directory')
+@click.option('--model_save_path', type=str, default=MODEL_SAVE_PATH, help='path to save the trained model')
+@click.option('--model_load_path', type=str, default=MODEL_LOAD_PATH, help='path to load the saved model')
+@click.option('--data_path', type=str, default=DATA_PATH, help='path to the data directory')
 @click.option('--log_step', type=int, default=20, help='number of steps to log')
 def run(parallel_threads, model_name, number_of_epochs, batch_size, learning_rate, use_tensorboard, model_save_path, model_load_path, data_path, log_step):
     """
@@ -50,7 +52,7 @@ def run(parallel_threads, model_name, number_of_epochs, batch_size, learning_rat
         batch_size: number of samples passed through to the network at one time
         learning_rate: learning rate
         use_tensorboard: use tensorboard for visualization
-        model_save_path: path to save the trained model
+        model_save_path: path to save the trained models
         model_load_path: path to load the saved model
         data_path: path to the data directory
         log_step: number of steps to log

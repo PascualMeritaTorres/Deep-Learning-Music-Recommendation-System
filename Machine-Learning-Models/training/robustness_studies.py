@@ -8,6 +8,7 @@ import torch
 import model as Model
 from augmentation_helpers import DataAugmentation
 from model_helpers import get_scores
+from paths import BINARY_PATH,TEST_PATH,DATA_PATH
 
 class Predict(object):
     def __init__(self, config):
@@ -18,9 +19,8 @@ class Predict(object):
         self.batch_size = config.batch_size
 
 
-        self.binary_path='./../../Dataset-Creation-And-Preprocessing/our_data/binary.npy'
-        self.test_path='./../../Dataset-Creation-And-Preprocessing/our_data/test.csv'
-
+        self.binary_path=BINARY_PATH
+        self.test_path=TEST_PATH
         self.load_csvs()
         self.build_model()
     
@@ -61,7 +61,7 @@ class Predict(object):
 @click.option('--model_name', type=click.Choice(['fcn', 'crnn', 'short', 'short_res']), default='fcn', help='type of model to use')
 @click.option('--batch_size', type=int, default=16, help='batch size for the model')
 @click.option('--model_path', type=str, default='.', help='path to saved model')
-@click.option('--data_path', type=str, default='/Users/pascualmeritatorres/Developer/Dissertation/actual-dissertation/Dataset-Creation-And-Preprocessing/notebooks/mp3', help='path to data directory')
+@click.option('--data_path', type=str, default=DATA_PATH, help='path to data directory')
 @click.option('--augmentation_type', type=click.Choice(['time_stretch', 'pitch_shift', 'dynamic_range_compression', 'white_noise']), default='time_stretch', help='type of augmentation to apply')
 @click.option('--rate', type=float, default=0, help='rate parameter for the augmentation')
 def run(model_name, batch_size, model_path, data_path, augmentation_type, rate):

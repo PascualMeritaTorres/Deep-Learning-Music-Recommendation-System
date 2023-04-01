@@ -4,6 +4,8 @@ import numpy as np
 from torch.utils import data
 import pandas as pd
 
+from paths import TRAIN_PATH,VALID_PATH,TEST_PATH,BINARY_PATH
+
 class AudioFolder(data.Dataset):
 	def __init__(self, root, split, input_length=None):
 		"""
@@ -20,10 +22,10 @@ class AudioFolder(data.Dataset):
 		self.root = root
 		self.split = split
 		self.input_length = input_length
-		self.train='./../../Dataset-Creation-And-Preprocessing/our_data/train.csv'
-		self.valid='./../../Dataset-Creation-And-Preprocessing/our_data/valid.csv'
-		self.test='./../../Dataset-Creation-And-Preprocessing/our_data/test.csv'
-		self.binary = np.load('./../../Dataset-Creation-And-Preprocessing/our_data/binary.npy')
+		self.train=TRAIN_PATH
+		self.valid=VALID_PATH
+		self.test=TEST_PATH
+		self.binary = np.load(BINARY_PATH)
 		self.set_csv()
 
 	

@@ -9,6 +9,7 @@ import torch
 
 import model as Model
 from model_helpers import get_scores
+from paths import BINARY_PATH,TEST_PATH,DATA_PATH,MODEL_LOAD_PATH
 
 class Evaluate(object):
     def __init__(self, config):
@@ -22,8 +23,8 @@ class Evaluate(object):
         self.model_load_path = config.model_load_path
         self.data_path = config.data_path
         self.batch_size = config.batch_size
-        self.binary_path='./../../Dataset-Creation-And-Preprocessing/our_data/binary.npy'
-        self.test_path='./../../Dataset-Creation-And-Preprocessing/our_data/test.csv'
+        self.binary_path=BINARY_PATH
+        self.test_path=TEST_PATH
         self.load_csvs()
         self.build_model()
 
@@ -80,8 +81,8 @@ class Evaluate(object):
 @click.command()
 @click.option('--model_name', type=click.Choice(['fcn', 'crnn', 'short', 'short_res']), default='fcn', help='name of the model to use')
 @click.option('--batch_size', type=int, default=8, help='number of samples passed through to the network at one time')
-@click.option('--model_load_path', type=str,default='/Users/pascualmeritatorres/Developer/Dissertation/actual-dissertation/sota-music-tagging-models/models/mtat/fcn/best_model.pth', help='path to load the saved model')
-@click.option('--data_path', type=str, default='/Users/pascualmeritatorres/Developer/Dissertation/actual-dissertation/Dataset-Creation-And-Preprocessing/notebooks/mp3', help='path to the data directory')
+@click.option('--model_load_path', type=str,default=MODEL_LOAD_PATH, help='path to load the saved model')
+@click.option('--data_path', type=str, default=DATA_PATH, help='path to the data directory')
 def run(model_name, batch_size,model_load_path, data_path):
     """
     This script trains the model.

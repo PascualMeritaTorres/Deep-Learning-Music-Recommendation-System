@@ -14,6 +14,7 @@ from torch.utils.tensorboard import SummaryWriter
 
 import model as Model
 from model_helpers import get_scores
+from paths import BINARY_PATH,VALID_PATH
 
 class TrainingLogic(object):
     def __init__(self, data_loader, config):
@@ -38,9 +39,8 @@ class TrainingLogic(object):
         self.model_name = config.model_name
 
         # Define file paths
-        self.binary_path='./../../Dataset-Creation-And-Preprocessing/our_data/binary.npy'
-        self.valid_path='./../../Dataset-Creation-And-Preprocessing/our_data/val.csv'
-
+        self.binary_path=BINARY_PATH
+        self.valid_path=VALID_PATH
         # Build model and load data
         self.load_csvs()
         self.build_model()
@@ -92,11 +92,15 @@ class TrainingLogic(object):
             self.model=Model.ShortChunkCNN_Res()
 
         # Load the pretrained model if available
-        if len(self.model_load_path) > 1:
-            self.load_saved_model(self.model_load_path)
+        # if len(self.model_load_path) > 1:
+        #     self.load_saved_model(self.model_load_path)
 
         # Set the optimizer
         self.optimizer = torch.optim.Adam(self.model.parameters(), self.learning_rate, weight_decay=1e-4)
+
+        # Initialize the learning rate scheduler
+        self.scheduler = StepLR(self.optimizer, step_size=20, gamma=0.1)
+
         
     def train(self):
         """
@@ -104,7 +108,6 @@ class TrainingLogic(object):
         """
         # Initialize training variables
         start_time = time.time()
-        current_optimizer = 'adam'
         reconstruction_loss = nn.BCELoss() # Binary Cross Entropy Loss
         best_metric_so_far = 0 # stores the best result obtained so far
         drop_counter = 0 # used to decide which optimizer to use
@@ -112,7 +115,6 @@ class TrainingLogic(object):
         # Training loop
         for epoch in range(self.number_of_epochs):
             batch_counter = 0 
-            drop_counter += 1 # increase the drop counter
             self.model = self.model.train() # set the model in training mode
 
             # Iterate over data batches
@@ -137,51 +139,20 @@ class TrainingLogic(object):
             # Perform validation and update the best metric
             best_metric_so_far = self.get_validation(best_metric_so_far, epoch) # Calculate the Binary Cross Entropy loss of our current model using the validation set
 
-            # Update the optimizer accordingly
-            current_optimizer, drop_counter = self.modify_optimizer_accordingly(current_optimizer, drop_counter)
+            # Switch to SGD after 80 epochs and set the initial learning rate
+            if epoch == 79:
+                self.optimizer = torch.optim.SGD(self.model.parameters(), lr=0.001,
+                                                 momentum=0.9, weight_decay=0.0001,
+                                                 nesterov=True)
+                self.scheduler = StepLR(self.optimizer, step_size=20, gamma=0.1)
+
+            # Update the learning rate using the scheduler
+            self.scheduler.step()
 
         print("[%s] Train finished. Elapsed: %s"
             % (datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
                 datetime.timedelta(seconds=time.time() - start_time)))
-
-
-    def modify_optimizer_accordingly(self, current_optimizer_name, drop_counter):
-        """
-        Update the optimizer based on the value of the drop counter.
-
-        Parameters:
-        - current_optimizer_name: the name of the current optimizer
-        - drop_counter: a counter used to decide which optimizer to use
-
-        Returns:
-        - updated_optimizer_name: the name of the updated optimizer
-        - updated_drop_counter: the updated value of the drop counter
-        """
-        
-        # Update the model with the best saved model
-        self.load_saved_model(os.path.join(self.model_save_path, 'best_model.pth'))
-
-        # Update the optimizer based on the drop_counter value
-        if current_optimizer_name == 'adam' and drop_counter == 80:
-            self.optimizer = torch.optim.SGD(self.model.parameters(), lr=0.001,
-                                            momentum=0.9, weight_decay=0.0001,
-                                            nesterov=True)
-            updated_optimizer_name = 'sgd_1'
-            drop_counter = 0
-            print('SGD optimizer with learning rate 1e-3')
-        if current_optimizer_name == 'sgd_1' and drop_counter == 20:
-            for pg in self.optimizer.param_groups:
-                pg['lr'] = 0.0001
-            updated_optimizer_name = 'sgd_2'
-            drop_counter = 0
-            print('SGD optimizer with learning rate 1e-4')
-        if current_optimizer_name == 'sgd_2' and drop_counter == 20:
-            for pg in self.optimizer.param_groups:
-                pg['lr'] = 0.00001
-            updated_optimizer_name = 'sgd_3'
-            print('SGD optimizer with learning rate 1e-5')
-        return updated_optimizer_name, drop_counter
-
+                
 
     def print_log(self, epoch, iteration, loss, start_time):
         """

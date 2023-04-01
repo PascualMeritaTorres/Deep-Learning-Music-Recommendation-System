@@ -13,6 +13,7 @@
         "reconst",
         "sklearn",
         "soundfile",
+        "spotipy",
         "tqdm",
         "unsqueeze"
     ]

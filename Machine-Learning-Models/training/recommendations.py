@@ -10,6 +10,7 @@ import torch
 from torch.autograd import Variable
 
 import model as Model
+from paths import BINARY_PATH,TAGS_PATH,TEST_PATH,TRAIN_PATH,VALID_PATH,MODEL_LOAD_PATH,DATA_PATH,SAMPLE_SONG_PATH
 
 class RetrieveSimilarSongs(object):
     """
@@ -26,11 +27,11 @@ class RetrieveSimilarSongs(object):
         self.dataset_path=config.dataset_path
         self.fs = 16000
 
-        self.binary_path='./../../Dataset-Creation-And-Preprocessing/our_data/binary.npy'
-        self.tags_path='./../../Dataset-Creation-And-Preprocessing/our_data/tags.npy'
-        self.test_path='./../../Dataset-Creation-And-Preprocessing/our_data/test.csv'
-        self.train_path='./../../Dataset-Creation-And-Preprocessing/our_data/train.csv'
-        self.validate_path='./../../Dataset-Creation-And-Preprocessing/our_data/val.csv'
+        self.binary_path=BINARY_PATH
+        self.tags_path=TAGS_PATH
+        self.test_path=TEST_PATH
+        self.train_path=TRAIN_PATH
+        self.validate_path=VALID_PATH
 
         self.get_cvs()
         self.build_model()
@@ -208,9 +209,9 @@ class RetrieveSimilarSongs(object):
 @click.command()
 @click.option('--model_name', type=click.Choice(['fcn', 'crnn', 'short', 'short_res']), default='fcn', help='Model type to use')
 @click.option('--batch_size', type=int, default=16, help='Number of samples passed through to the network at one time')
-@click.option('--model_load_path', type=str, default='/Users/pascualmeritatorres/Developer/Dissertation/sota-music-tagging-models/models/mtat/fcn/best_model.pth', help='Path to load the saved model')
-@click.option('--data_song_path', type=str, default='/Users/pascualmeritatorres/Developer/Dissertation/sota-music-tagging-models/testSongs/testSongHipHop.wav', help='Path to the test song')
-@click.option('--dataset_path', type=str, default='/Users/pascualmeritatorres/Developer/Dissertation/MagnaTagATuneSongs', help='Path to the dataset')
+@click.option('--model_load_path', type=str, default=MODEL_LOAD_PATH, help='Path to load the saved model')
+@click.option('--data_song_path', type=str, default=SAMPLE_SONG_PATH, help='Path to the test song')
+@click.option('--dataset_path', type=str, default=DATA_PATH, help='Path to the dataset')
 def run(model_name, batch_size, model_load_path, data_song_path, dataset_path):
     """
     This script retrieves similar songs using the specified model.
