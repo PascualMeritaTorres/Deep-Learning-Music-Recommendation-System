@@ -38,13 +38,6 @@ class RetrieveSimilarSongs(object):
         self.get_cvs()
         self.build_model()
 
-        if os.path.isfile(self.sample_song_path) and self.sample_song_path.endswith('.wav'):
-            print(f"Playing your input song")
-            process = subprocess.Popen(['afplay', self.sample_song_path])
-            input("Press Enter to stop playback and move to recommended songs...")
-            process.terminate()
-        else:
-            print(f"{self.sample_song_path} is not a valid WAV audio file")
         
     def build_model(self):
         """
@@ -147,17 +140,19 @@ class RetrieveSimilarSongs(object):
         # Find the indices of the top 5 most similar songs
         top_indices = np.argsort(similarities[0])[-5:][::-1]
 
-        # Play the top 5 similar songs
+       # Return the top 5 similar songs as a list of dictionaries
+        similar_songs = []
         for idx in top_indices:
             song = self.full_dataset.iloc[idx]
-            print(f"Playing {song['track_name']} by {song['artist_name']} (similarity: {similarities[0][idx]:.4f})")
-            full_path = os.path.join(self.data_path, song['track_uri']+'.mp3')
-            print("full path",full_path)
-            process = subprocess.Popen(['afplay', full_path])
-            input("Press Enter to stop playback and move to the next recommended song...")
-            process.terminate()
+            similarity = similarities[0][idx]
+            similar_songs.append({
+                'track_name': song['track_name'],
+                'artist_name': song['artist_name'],
+                'similarity': round(similarity, 4),
+                'song_id': song['track_uri']+'.mp3' 
+            })
 
-        return top_indices
+        return similar_songs
         
         
         
