@@ -5,12 +5,15 @@ import librosa
 import matplotlib.pyplot as plt
 import subprocess
 import click
+import pandas as pd
+from sklearn.metrics.pairwise import cosine_similarity
+
 
 import torch
 from torch.autograd import Variable
 
 import model as Model
-from paths import BINARY_PATH,TAGS_PATH,TEST_PATH,TRAIN_PATH,VALID_PATH,MODEL_LOAD_PATH,DATA_PATH,SAMPLE_SONG_PATH
+from paths import BINARY_PATH,TAGS_PATH,MODEL_LOAD_PATH,DATA_PATH,SAMPLE_SONG_PATH,FULL_DATASET_PATH,DATA_PATH
 
 class RetrieveSimilarSongs(object):
     """
@@ -22,27 +25,26 @@ class RetrieveSimilarSongs(object):
     def __init__(self, config):
         self.model_name = config.model_name
         self.model_load_path = config.model_load_path
-        self.data_song_path = config.data_song_path
+        self.sample_song_path = config.sample_song_path
         self.batch_size = config.batch_size
-        self.dataset_path=config.dataset_path
+        self.songs_path=config.songs_path
         self.fs = 16000
 
+        self.full_dataset_path=FULL_DATASET_PATH
         self.binary_path=BINARY_PATH
         self.tags_path=TAGS_PATH
-        self.test_path=TEST_PATH
-        self.train_path=TRAIN_PATH
-        self.validate_path=VALID_PATH
+        self.data_path=DATA_PATH
 
         self.get_cvs()
         self.build_model()
 
-        if os.path.isfile(self.data_song_path) and self.data_song_path.endswith('.wav'):
+        if os.path.isfile(self.sample_song_path) and self.sample_song_path.endswith('.wav'):
             print(f"Playing your input song")
-            process = subprocess.Popen(['afplay', self.data_song_path])
+            process = subprocess.Popen(['afplay', self.sample_song_path])
             input("Press Enter to stop playback and move to recommended songs...")
             process.terminate()
         else:
-            print(f"{self.data_song_path} is not a valid WAV audio file")
+            print(f"{self.sample_song_path} is not a valid WAV audio file")
         
     def build_model(self):
         """
@@ -69,10 +71,7 @@ class RetrieveSimilarSongs(object):
         """
         Load the train, test, and validation lists, binary data, and tags data from the specified paths.
         """
-        self.train_list = np.load(self.train_path)
-        self.test_list = np.load(self.test_path)
-        self.valid_list = np.load(self.validate_path)
-        self.all_songs_list = np.concatenate([self.train_list, self.test_list, self.valid_list], axis=0)
+        self.full_dataset=pd.read_csv(self.full_dataset_path)
         self.binary = np.load(self.binary_path)
         self.tags = np.load(self.tags_path)
 
@@ -95,46 +94,22 @@ class RetrieveSimilarSongs(object):
         Returns:
             torch.Tensor: A tensor containing the loaded audio data
         """
-        raw, sr = librosa.core.load(self.data_song_path, sr=self.fs)
+        numpy_song, sr = librosa.core.load(self.sample_song_path, sr=self.fs)
+        random_idx = int(np.floor(np.random.random(1) * (len(numpy_song)-self.input_length))) #generate a random integer to select a random starting point in the numpy array
+        sliced_numpy_song = np.array(numpy_song[random_idx:random_idx+self.input_length]) #slice the original .npy array, starting at the random index and ending at the random index+input_length
+        sliced_numpy_song=sliced_numpy_song.astype('float32')
+
         # split chunk
-        length = len(raw)
+        length = len(sliced_numpy_song)
         hop = (length - self.input_length) // self.batch_size
-        x = torch.zeros(self.batch_size, 1, self.input_length)
+        x = torch.zeros(self.batch_size, self.input_length)
         for i in range(self.batch_size):
-            x[i] = torch.Tensor(raw[i*hop:i*hop+self.input_length]).unsqueeze(0)
+            x[i] = torch.Tensor(sliced_numpy_song[i*hop:i*hop+self.input_length]).unsqueeze(0)
         return x
-
-
-    def get_single_audio_loader(self):
-        """
-        Get the single audio loader by loading the audio.
-
-        Returns:
-            torch.Tensor: A tensor containing the loaded audio data.
-        """
-        audio = self.load_audio()
-        return audio
     
-    def plot_tag_graph(self,sortedList):
-        """
-        Plot a bar chart of the top 5 tags and their confidence values.
-
-        Args:
-            sortedList (list): A list of tuples containing the tags and their confidence values.
-        """
-        # Extract the top 15 tags and values
-        top_tags = [x[0] for x in sortedList[:5]]
-        top_values = [x[1] for x in sortedList[:5]]
-        # Create a bar chart
-        plt.bar(top_tags, top_values)
-        plt.ylim(0.0, 1.0)  # Set y-axis limits
-        plt.title('Top 5 tags')
-        plt.xlabel('')
-        plt.ylabel('Confidence')
-        plt.show()
 
 
-    def get_top_tags(self):
+    def get_features(self):
         """
         Get the top tags for the input song.
 
@@ -142,56 +117,49 @@ class RetrieveSimilarSongs(object):
             list: A list of tuples containing the top tags and their confidence values.
         """
         self.model = self.model.eval()
-        data_loader = self.get_single_audio_loader()
-        audio_tensor = next(iter(data_loader))
+        audio_tensor = self.load_audio()
         x = Variable(audio_tensor)
         out = self.model(x)
         out = out.detach().cpu()
-        out = out.detach().numpy().reshape(-1)
-        pairs = []
-        for i in range(len(self.tags)):
-            pairs.append((self.tags[i], out[i]))
-        sortedList = sorted(pairs, key=lambda x: -x[1])
-        return sortedList
+        mean_out = np.array(out).mean(axis=0)
+        return mean_out
     
-    def find_similar_songs(self, sortedList):
+    def find_similar_songs(self):
         """
         Find and play similar songs based on the top tags.
 
         Args:
             sortedList (list): A list of tuples containing the top tags and their confidence values.
         """
-        originalIndices = [sortedList.index(x) for x in sortedList[:5]]
-        relevantColumnsOfAllSongs = self.binary[:, originalIndices]
-        rowSums = relevantColumnsOfAllSongs.sum(axis=1)
-        sorted_indices = np.argsort(rowSums)[::-1]
+        feature_columns = ['danceability', 'energy', 'loudness', 'mode', 'acousticness', 'instrumentalness',
+                           'liveness', 'valence', '78-92bpm', '92-101bpm', '101-110bpm', '110-120bpm', '120-128bpm',
+                           '128-140bpm', '140-154bpm', '154-170bpm', 'A#_Bb-Key', 'A-Key', 'B-Key', 'C#_Db-Key', 'C-Key',
+                           'D#_Eb-Key', 'D-Key', 'E-Key', 'F#_Gb-Key', 'F-Key', 'G#_Ab-Key', 'G-Key', '1-time-sign',
+                           '3-time-sign', '4-time-sign', '5-time-sign']
+        input_song_features=self.get_features()
+        input_song_features = input_song_features.reshape(1, -1)
 
-        max_sum_rows = []
-        for i in sorted_indices:
-            if len(max_sum_rows) >= 5:
-                break
-            if not max_sum_rows or rowSums[i] == rowSums[max_sum_rows[-1]]:
-                max_sum_rows.append(i)
-            else:
-                break
+        dataset_features = self.full_dataset[feature_columns].values
 
-        top_rows = np.random.choice(max_sum_rows, size=min(5, len(max_sum_rows)), replace=False)
+        # Compute cosine similarity between the input song and all songs in the dataset
+        similarities = cosine_similarity(input_song_features, dataset_features)
 
-        arr_split = np.array([s.split('\t') for s in self.all_songs_list])
-        mask = np.in1d(arr_split[:, 0].astype(int), top_rows)
-        file_names = arr_split[mask][:, 1]
+        # Find the indices of the top 5 most similar songs
+        top_indices = np.argsort(similarities[0])[-5:][::-1]
 
-        counter = 1
-        for song_path in file_names:
-            full_path = os.path.join(self.dataset_path, song_path)
-            if os.path.isfile(full_path) and full_path.endswith('.mp3'):
-                print('Playing recommendation', counter)
-                process = subprocess.Popen(['afplay', full_path])
-                counter += 1
-                input("Press Enter to stop playback and move to next song...")
-                process.terminate()
-            else:
-                print(f"{full_path} is not a valid MP3 audio file")
+        # Play the top 5 similar songs
+        for idx in top_indices:
+            song = self.full_dataset.iloc[idx]
+            print(f"Playing {song['track_name']} by {song['artist_name']} (similarity: {similarities[0][idx]:.4f})")
+            full_path = os.path.join(self.data_path, song['track_uri']+'.mp3')
+            print("full path",full_path)
+            process = subprocess.Popen(['afplay', full_path])
+            input("Press Enter to stop playback and move to the next recommended song...")
+            process.terminate()
+
+        return top_indices
+        
+        
         
     def give_song_recommendations(self):
         """
@@ -200,19 +168,15 @@ class RetrieveSimilarSongs(object):
         Returns:
             list: A list of tuples containing the top tags and their confidence values.
         """
-        sortedList = self.get_top_tags()
-        self.plot_tag_graph(sortedList)
-        self.find_similar_songs(sortedList)
-        return sortedList
-
+        return self.find_similar_songs()
 
 @click.command()
-@click.option('--model_name', type=click.Choice(['fcn', 'crnn', 'short', 'short_res']), default='fcn', help='Model type to use')
+@click.option('--model_name', type=click.Choice(['fcn', 'crnn', 'short', 'short_res']), default='short_res', help='Model type to use')
 @click.option('--batch_size', type=int, default=16, help='Number of samples passed through to the network at one time')
 @click.option('--model_load_path', type=str, default=MODEL_LOAD_PATH, help='Path to load the saved model')
-@click.option('--data_song_path', type=str, default=SAMPLE_SONG_PATH, help='Path to the test song')
-@click.option('--dataset_path', type=str, default=DATA_PATH, help='Path to the dataset')
-def run(model_name, batch_size, model_load_path, data_song_path, dataset_path):
+@click.option('--sample_song_path', type=str, default=SAMPLE_SONG_PATH, help='Path to the test song')
+@click.option('--songs_path', type=str, default=DATA_PATH, help='Path to the songs dataset')
+def run(model_name, batch_size, model_load_path, sample_song_path, songs_path):
     """
     This script retrieves similar songs using the specified model.
 
@@ -220,8 +184,8 @@ def run(model_name, batch_size, model_load_path, data_song_path, dataset_path):
         model_type: Model type to use
         batch_size: Number of samples passed through to the network at one time
         model_load_path: Path to load the saved model
-        data_song_path: Path to the test song
-        dataset_path: Path to the dataset
+        sample_song_path: Path to the test song
+        songs_path: Path to the song dataset
     """
     class Config:
         def __init__(self, **kwargs):
@@ -231,8 +195,8 @@ def run(model_name, batch_size, model_load_path, data_song_path, dataset_path):
         model_name=model_name,
         batch_size=batch_size,
         model_load_path=model_load_path,
-        data_song_path=data_song_path,
-        dataset_path=dataset_path
+        sample_song_path=sample_song_path,
+        songs_path=songs_path
     )
 
     print(config)

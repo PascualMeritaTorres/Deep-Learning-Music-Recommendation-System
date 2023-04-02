@@ -1,12 +1,17 @@
 # coding: utf-8
 #import folium
-import numpy as np
-import torch
 import torch.nn as nn
-import torch.nn.functional as F
-from torch.autograd import Variable
 import torchaudio
 
+
+class StepFunction(nn.Module):
+    def __init__(self, threshold=0.5):
+        super(StepFunction, self).__init__()
+        self.threshold = threshold
+
+    def forward(self, x):
+        return (x >= self.threshold).float()
+    
 class Conv2dBlock(nn.Module):
     def __init__(self, input_channels, output_channels, kernel_size=3, stride=1, pooling_size=2):
         """
@@ -343,6 +348,9 @@ class ShortChunkCNN_Res(nn.Module):
         self.dropout = nn.Dropout(0.5)
         self.relu = nn.ReLU()
 
+        #Step function
+        self.step = StepFunction(threshold=0.5)
+
     def forward(self, x):
         # Spectrogram
         x = self.spec(x)
@@ -371,7 +379,8 @@ class ShortChunkCNN_Res(nn.Module):
         x = self.relu(x)
         x = self.dropout(x)
         x = self.dense2(x)
-        x = nn.Sigmoid()(x)
+        # = nn.Sigmoid()(x)
+        x = self.step(x)  # apply step function instead of sigmoid
 
         return x
 
