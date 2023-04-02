@@ -315,7 +315,7 @@ class ShortChunkCNN_Res(nn.Module):
                 f_min=0.0,
                 f_max=8000.0,
                 n_mels=128,
-                n_class=50):
+                n_class=32):
         super(ShortChunkCNN_Res, self).__init__()
 
         # Spectrogram
@@ -328,13 +328,13 @@ class ShortChunkCNN_Res(nn.Module):
         self.spec_bn = nn.BatchNorm2d(1)
 
         # CNN
-        self.layer1 = Res_2d(1, n_channels, stride=2)
-        self.layer2 = Res_2d(n_channels, n_channels, stride=2)
-        self.layer3 = Res_2d(n_channels, n_channels*2, stride=2)
-        self.layer4 = Res_2d(n_channels*2, n_channels*2, stride=2)
-        self.layer5 = Res_2d(n_channels*2, n_channels*2, stride=2)
-        self.layer6 = Res_2d(n_channels*2, n_channels*2, stride=2)
-        self.layer7 = Res_2d(n_channels*2, n_channels*4, stride=2)
+        self.layer1 = Residual2dBlock(1, n_channels, stride=2)
+        self.layer2 = Residual2dBlock(n_channels, n_channels, stride=2)
+        self.layer3 = Residual2dBlock(n_channels, n_channels*2, stride=2)
+        self.layer4 = Residual2dBlock(n_channels*2, n_channels*2, stride=2)
+        self.layer5 = Residual2dBlock(n_channels*2, n_channels*2, stride=2)
+        self.layer6 = Residual2dBlock(n_channels*2, n_channels*2, stride=2)
+        self.layer7 = Residual2dBlock(n_channels*2, n_channels*4, stride=2)
 
         # Dense
         self.dense1 = nn.Linear(n_channels*4, n_channels*4)

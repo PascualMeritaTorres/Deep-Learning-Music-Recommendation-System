@@ -8,10 +8,12 @@ import pandas as pd
 import torch
 import torch.nn as nn
 import torch.optim
-from sklearn import metrics
 from torch.autograd import Variable
 from torch.optim.lr_scheduler import StepLR
-from torch.utils.tensorboard import SummaryWriter
+#from torch.utils.tensorboard import SummaryWriter
+# Import Matplotlib
+import matplotlib.pyplot as plt
+import seaborn as sns
 
 import model as Model
 from model_helpers import get_scores
@@ -39,6 +41,12 @@ class TrainingLogic(object):
         self.batch_size = config.batch_size
         self.model_name = config.model_name
 
+        # Initialize lists to store values for plotting
+        self.train_losses = []
+        self.validation_losses = []
+        self.validation_roc_aucs = []
+        self.validation_pr_aucs = []
+
         # Define file paths
         self.binary_path=BINARY_PATH
         self.valid_path=VALID_PATH
@@ -47,7 +55,7 @@ class TrainingLogic(object):
         self.build_model()
 
         # Initialize Tensorboard writer
-        self.writer = SummaryWriter()
+        #self.writer = SummaryWriter()
 
     def load_csvs(self):
         """
@@ -111,7 +119,6 @@ class TrainingLogic(object):
         start_time = time.time()
         reconstruction_loss = nn.BCELoss() # Binary Cross Entropy Loss
         best_metric_so_far = 0 # stores the best result obtained so far
-        drop_counter = 0 # used to decide which optimizer to use
 
         # Training loop
         for epoch in range(self.number_of_epochs):
@@ -137,7 +144,8 @@ class TrainingLogic(object):
                 self.print_log(epoch, batch_counter, batch_loss, start_time)
 
 
-            self.writer.add_scalar('Loss/train', batch_loss.item(), epoch)
+            #self.writer.add_scalar('Loss/train', batch_loss.item(), epoch)
+            self.train_losses.append(batch_loss.item())
             # Perform validation and update the best metric
             best_metric_so_far = self.get_validation(best_metric_so_far, epoch) # Calculate the Binary Cross Entropy loss of our current model using the validation set
 
@@ -150,6 +158,9 @@ class TrainingLogic(object):
 
             # Update the learning rate using the scheduler
             self.scheduler.step()
+        
+        # Plot the values after training
+        self.plot_values()
 
         print("[%s] Train finished. Elapsed: %s"
             % (datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
@@ -176,9 +187,12 @@ class TrainingLogic(object):
                                                                                                 binary=self.binary,
                                                                                                 data_path=self.data_path,
                                                                                                 input_length=self.input_length)
-        self.writer.add_scalar('Loss/Validation', validation_loss, epoch)
-        self.writer.add_scalar('AUC/ROC', validation_roc_auc, epoch)
-        self.writer.add_scalar('AUC/PR', validation_pr_auc, epoch)
+        #self.writer.add_scalar('Loss/Validation', validation_loss, epoch)
+        #self.writer.add_scalar('AUC/ROC', validation_roc_auc, epoch)
+        #self.writer.add_scalar('AUC/PR', validation_pr_auc, epoch)
+        self.validation_losses.append(validation_loss)
+        self.validation_roc_aucs.append(validation_roc_auc)
+        self.validation_pr_aucs.append(validation_pr_auc)
 
         # Update the best validation metric and save the best model if necessary
         if validation_score > best_validation_metric:
@@ -206,3 +220,42 @@ class TrainingLogic(object):
                     (datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
                         epoch+1, self.number_of_epochs, iteration, len(self.data_loader), loss.item(),
                         datetime.timedelta(seconds=time.time()-start_time)))
+            
+    def plot_values(self):
+        """
+        Plot the training loss, validation loss, ROC AUC, and PR AUC.
+        """
+        epochs = range(1, self.number_of_epochs + 1)
+
+        # Set a seaborn style for better visuals
+        sns.set(style='whitegrid')
+
+        fig, axes = plt.subplots(2, 2, figsize=(12, 8))
+
+        # Training Loss
+        axes[0, 0].plot(epochs, self.train_losses, label='Training Loss')
+        axes[0, 0].set(xlabel='Epoch', ylabel='Loss', title='Training Loss')
+        axes[0, 0].legend()
+
+        # Validation Loss
+        axes[0, 1].plot(epochs, self.validation_losses, label='Validation Loss')
+        axes[0, 1].set(xlabel='Epoch', ylabel='Loss', title='Validation Loss')
+        axes[0, 1].legend()
+
+        # ROC AUC
+        axes[1, 0].plot(epochs, self.validation_roc_aucs, label='ROC AUC')
+        axes[1, 0].set(xlabel='Epoch', ylabel='ROC AUC', title='ROC AUC Score')
+        axes[1, 0].legend()
+
+        # PR AUC
+        axes[1, 1].plot(epochs, self.validation_pr_aucs, label='PR AUC')
+        axes[1, 1].set(xlabel='Epoch', ylabel='PR AUC', title='PR AUC Score')
+        axes[1, 1].legend()
+
+        fig.tight_layout()
+
+        # Save the plot as a high-quality image
+        plt.savefig('training_results.png', dpi=300)
+
+        # Display the plot
+        plt.show()

@@ -12,10 +12,10 @@ from paths import BINARY_PATH,TEST_PATH,DATA_PATH,MODEL_LOAD_PATH
 
 class Predict(object):
     def __init__(self, config):
-        self.time_stretch_augmentation=DataAugmentation('time_stretch',config.rate)
-        self.pitch_shift_augmentation=DataAugmentation('pitch_shift',config.rate)
-        self.dynamic_range_compression_augmentation=DataAugmentation('dynamic_range',config.rate)
-        self.white_noise_augmentation=DataAugmentation('white_noise',config.rate)
+        self.time_stretch_augmentation=DataAugmentation('time_stretch',1)
+        self.pitch_shift_augmentation=DataAugmentation('pitch_shift',1)
+        self.dynamic_range_compression_augmentation=DataAugmentation('dynamic_range',4)
+        self.white_noise_augmentation=DataAugmentation('white_noise',0.2)
         self.model_name = config.model_name
         self.model_path = config.model_path
         self.data_path = config.data_path
@@ -87,8 +87,7 @@ class Predict(object):
 @click.option('--batch_size', type=int, default=16, help='batch size for the model')
 @click.option('--model_path', type=str, default=MODEL_LOAD_PATH, help='path to saved model')
 @click.option('--data_path', type=str, default=DATA_PATH, help='path to data directory')
-@click.option('--rate', type=float, default=0, help='rate parameter for the augmentation')
-def run(model_name, batch_size, model_path, data_path, rate):
+def run(model_name, batch_size, model_path, data_path):
     """
     This script runs the prediction process.
 
@@ -97,7 +96,6 @@ def run(model_name, batch_size, model_path, data_path, rate):
         batch_size: batch size for the model
         model_path: path to saved model
         data_path: path to data directory
-        rate: rate parameter for the augmentation
     """
 
     class Config:
@@ -109,7 +107,6 @@ def run(model_name, batch_size, model_path, data_path, rate):
         batch_size=batch_size,
         model_path=model_path,
         data_path=data_path,
-        rate=rate,
     )
 
 

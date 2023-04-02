@@ -6,7 +6,11 @@
 git clone https://github.com/PascualMeritaTorres/Deep-Learning-Music-Recommendation-System.git
 ```
 
-**2)**: This project can be subdivided into 2 parts, namely data preprocessing which is done inside the Data-Creation-And-Preprocessing, and the training of the machine learning model, which is done inside the Machine-Learning-Models folder. Therefore, to facilitate package versions you must create 2 different environments, for executing commands inside each of the folders. Create a conda environment and install all the required packages for the machine learning model training:
+**2)**: This project can be subdivided into 2 parts, namely data preprocessing which is done inside the Data-Creation-And-Preprocessing, and the training of the machine learning model, which is done inside the Machine-Learning-Models folder. 
+
+Therefore, to facilitate package versions you must create 2 different environments, for executing commands inside each of the folders.
+
+ Create a conda environment and install all the required packages for the machine learning model training:
 
 ```
 cd Machine-Learning-Models

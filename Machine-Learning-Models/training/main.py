@@ -31,12 +31,12 @@ def configure_and_train(config):
 
 
 @click.command()
-@click.option('--parallel_threads', type=int, default=0, help='number of parallel threads of the cpu that will be used to train')
-@click.option('--model_name', type=click.Choice(['fcn', 'crnn', 'short', 'short_res']), default='fcn', help='name of the model to use')
+@click.option('--parallel_threads', type=int, default=4, help='number of parallel threads of the cpu that will be used to train')
+@click.option('--model_name', type=click.Choice(['fcn', 'crnn', 'short', 'short_res']), default='short_res', help='name of the model to use')
 @click.option('--number_of_epochs', type=int, default=1, help='number of epochs to train')
 @click.option('--batch_size', type=int, default=8, help='number of samples passed through to the network at one time')
 @click.option('--learning_rate', type=float, default=1e-4, help='learning rate')
-@click.option('--use_tensorboard', type=int, default=1, help='use tensorboard for visualization')
+@click.option('--use_tensorboard', type=int, default=0, help='use tensorboard for visualization')
 @click.option('--model_save_path', type=str, default=MODEL_SAVE_PATH, help='path to save the trained model')
 @click.option('--model_load_path', type=str, default=MODEL_LOAD_PATH, help='path to load the saved model')
 @click.option('--data_path', type=str, default=DATA_PATH, help='path to the data directory')
