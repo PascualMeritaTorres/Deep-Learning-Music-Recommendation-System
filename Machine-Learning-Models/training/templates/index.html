@@ -1,134 +1,262 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css?family=Montserrat:400,700&display=swap" rel="stylesheet">
-    <style>
-        body {
-            font-family: 'Montserrat', sans-serif;
-            background-color: #121212;
-            color: #FFFFFF;
-            margin: 0;
-            padding: 0;
-        }
-        h1 {
-            background-color: #1DB954;
-            color: white;
-            padding: 20px;
-            margin: 0;
-            width: 100%;
-            text-align: center;
-        }
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
-        }
-        label {
-            font-weight: bold;
-            margin-bottom: 8px;
-        }
-        input[type="file"] {
-            display: none;
-        }
-        .custom-file-upload {
-            display: inline-block;
-            padding: 10px 20px;
-            cursor: pointer;
-            background-color: #1DB954;
-            color: white;
-            font-weight: bold;
-            border-radius: 4px;
-            transition: all 0.3s;
-        }
-        .custom-file-upload:hover {
-            background-color: #12a84a;
-        }
-        ul {
-            list-style-type: none;
-            padding: 0;
-            text-align: center;
-        }
-        li {
-            background-color: #535353;
-            padding: 16px;
-            margin-bottom: 8px;
-            border-radius: 4px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-        li:hover {
-            transform: scale(1.05);
-        }
-        audio {
-            width: 100%;
-            margin-top: 20px;
-        }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css?family=Montserrat:400,700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Montserrat', sans-serif;
+      background-color: #121212;
+      color: #FFFFFF;
+      margin: 0;
+      padding: 0;
+    }
+    h1 {
+      background-color: #1DB954;
+      color: white;
+      padding: 20px;
+      margin: 0;
+      width: 100%;
+      text-align: center;
+    }
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+    }
+    label {
+      font-weight: bold;
+      margin-bottom: 8px;
+      display: block;
+    }
+    input[type="file"] {
+      display: none;
+    }
+    .custom-file-upload {
+      display: inline-block;
+      padding: 10px 20px;
+      cursor: pointer;
+      background-color: #1DB954;
+      color: white;
+      font-weight: bold;
+      border-radius: 4px;
+      transition: all 0.3s;
+      margin-bottom: 10px;
+    }
+    .custom-file-upload:hover {
+      background-color: #12a84a;
+    }
+    ul {
+      list-style-type: none;
+      padding: 0;
+      text-align: center;
+      margin-top: 30px;
+    }
+    li {
+      background-color: #535353;
+      padding: 16px;
+      margin-bottom: 10px;
+      border-radius: 4px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      cursor: pointer;
+      transition: all 0.3s;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    li:hover {
+      transform: scale(1.05);
+    }
+    .song-title {
+      font-weight: bold;
+    }
+    .song-artist {
+      margin-left: 10px;
+      font-style: italic;
+      color: #AAAAAA;
+    }
+    .song-controls {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    .song-controls button {
+      background-color: #1DB954;
+      border: none;
+      color: white;
+      padding: 5px 10px;
+      font-weight: bold;
+      margin-left: 10px;
+      cursor: pointer;
+      border-radius: 4px;
+      transition: all 0.3s;
+    }
+    .song-controls button:hover {
+      background-color: #12a84a;
+    }
+    audio {
+      width: 100%;
+      margin-top: 20px;
+    }
+    .input-song {
+      border: 2px solid #1DB954;
+      padding: 16px;
+      margin-bottom: 20px;
+      border-radius: 4px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+    .song-title {
+      font-weight: bold;
+      margin-bottom: 8px;
+    }
+    .song-artist {
+    margin-bottom: 8px;
+    }
+    .song-similarity {
+    font-style: italic;
+    color: #AAAAAA;
+    }
     </style>
     <title>Music Recommendations</title>
 </head>
 <body>
-    <h1>Music Recommendations</h1>
-    <div class="container">
-        <form id="song-form" class="text-center">
-            <div class="form-group">
-                <label for="sample_song_path">Sample song file:</label>
-                <input type="file" id="sample_song_path" name="sample_song_path" required>
-                <label for="sample_song_path"
-                class="custom-file-upload">
-                <i class="fas fa-upload"></i> Choose file
-            </label>
-            </div>
-            <button type="submit" class="btn btn-lg btn-success">Get recommendations</button>
-        </form>
-        <ul id="song-list"></ul>
-        <audio id="audio-player" controls>
-            Your browser does not support the audio element.
-        </audio>
+  <h1>Music Recommendations</h1>
+  <div class="container">
+    <form id="song-form" class="text-center">
+      <div class="form-group">
+        <label for="sample_song_path">Sample song file:</label>
+        <div>
+          <input type="file" id="sample_song_path" name="sample_song_path" required>
+          <label for="sample_song_path" class="custom-file-upload"><i class="fas fa-upload"></i> Choose file</label>
+        </div>
+      </div>
+      <button type="submit" class="btn btn-lg btn-success">Get recommendations</button>
+    </form>
+    <h2>Recommended Songs</h2>
+    <div class="input-song">
+      <div class="song-title">Playing: <span id="input-song-title"></span></div>
+      <div class="song-artist"><span id="input-song-artist"></span></div>
+      <div class="song-similarity">Similarity: 100%</div>
+      <div class="song-controls">
+        <button id="play-pause-input-song"><i class="fas fa-play"></i></button>
+      </div>
     </div>
-    <script>
-                document.getElementById('song-form').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const sample_song_path = document.getElementById('sample_song_path').files[0];
-            const formData = new FormData();
-            formData.append('sample_song_path', sample_song_path);
-            const response = await fetch('/get_recommendations', {
-                method: 'POST',
-                body: formData,
-                headers: {
-                    'Accept': 'application/json'
-                }
-            });
-            const recommendations = await response.json();
-            const songList = document.getElementById('song-list');
-            songList.innerHTML = '';
-            
-            // Add input song to the list
-            const inputSongItem = document.createElement('li');
-            inputSongItem.textContent = `Playing ${sample_song_path.name} (input song)`;
-            inputSongItem.setAttribute('data-song-url', URL.createObjectURL(sample_song_path));
-            songList.appendChild(inputSongItem);
+    <ul id="song-list"></ul>
+    <audio id="audio-player" controls>
+      Your browser does not support the audio element.
+    </audio>
+  </div>
+  <script>
+    const inputSongTitle = document.getElementById('input-song-title');
+    const inputSongArtist = document.getElementById('input-song-artist');
+    const songList = document.getElementById('song-list');
+    const audioPlayer = document.getElementById('audio-player');
+    const playPauseInputSongBtn = document.getElementById('play-pause-input-song');
+    let playingSong = null;
+    document.getElementById('song-form').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const sampleSongPath = document.getElementById('sample_song_path').files[0];
+  const formData = new FormData();
+  formData.append('sample_song_path', sampleSongPath);
+  const response = await fetch('/get_recommendations', {
+    method: 'POST',
+    body: formData,
+    headers: {
+      'Accept': 'application/json'
+    }
+  });
+  const recommendations = await response.json();
+  songList.innerHTML = '';
+  // Add input song to the list
+  const inputSongItem = document.createElement('li');
+  inputSongItem.innerHTML = `
+    <div class="song-title">Playing: ${sampleSongPath.name} (input song)</div>
+    <div class="song-artist">Artist Name</div>
+    <div class="song-similarity">Similarity: 100%</div>
+    <div class="song-controls">
+      <button class="play-pause-song"><i class="fas fa-play"></i></button>
+    </div>
+  `;
+  inputSongItem.classList.add('input-song');
+  inputSongItem.setAttribute('data-song-url', URL.createObjectURL(sampleSongPath));
+  songList.appendChild(inputSongItem);
+  inputSongTitle.textContent = sampleSongPath.name.replace(/\.[^/.]+$/, "");
+  inputSongArtist.textContent = "Artist Name"; //Replace with actual artist name
 
-            recommendations.forEach((song) => {
-                const listItem = document.createElement('li');
-                listItem.textContent = `Playing ${song.track_name} by ${song.artist_name} (similarity: ${song.similarity})`;
-                listItem.setAttribute('data-song-url', song.song_url);
-                songList.appendChild(listItem);
-            });
-        });
+  recommendations.forEach((song) => {
+    const listItem = document.createElement('li');
+    listItem.innerHTML = `
+      <div class="song-title">Playing: ${song.track_name}</div>
+      <div class="song-artist">${song.artist_name}</div>
+<div class="song-similarity">Similarity: ${song.similarity}%</div>
+<div class="song-controls">
+<button class="play-pause-song"><i class="fas fa-play"></i></button>
+</div>
+`;
+listItem.setAttribute('data-song-url', song.song_url);
+songList.appendChild(listItem);
+});
+});
+function playSong(songUrl) {
+  if (playingSong) {
+    playingSong.pause();
+  }
+  audioPlayer.src = songUrl;
+  audioPlayer.play();
+  playingSong = audioPlayer;
+}
 
-        document.getElementById('song-list').addEventListener('click', (e) => {
-            if (e.target.tagName === 'LI') {
-                const songUrl = e.target.getAttribute('data-song-url');
-                const audioPlayer = document.getElementById('audio-player');
-                audioPlayer.src = songUrl;
-                audioPlayer.play();
-            }
-        });
-    </script>
+function pauseSong() {
+  if (playingSong) {
+    playingSong.pause();
+  }
+}
+
+function togglePlayPauseBtn(btn) {
+  btn.innerHTML = btn.innerHTML === '<i class="fas fa-play"></i>' ? '<i class="fas fa-pause"></i>' : '<i class="fas fa-play"></i>';
+}
+
+songList.addEventListener('click', (e) => {
+  if (e.target.tagName === 'LI') {
+    const songUrl = e.target.getAttribute('data-song-url');
+    playSong(songUrl);
+    togglePlayPauseBtn(playPauseInputSongBtn);
+    playPauseInputSongBtn.disabled = true;
+  } else if (e.target.classList.contains('play-pause-song')) {
+    const listItem = e.target.closest('li');
+    const songUrl = listItem.getAttribute('data-song-url');
+    if (audioPlayer.src === songUrl) {
+      if (audioPlayer.paused) {
+        audioPlayer.play();
+        togglePlayPauseBtn(e.target);
+      } else {
+        audioPlayer.pause();
+        togglePlayPauseBtn(e.target);
+      }
+    } else {
+      playSong(songUrl);
+      const currentBtn = listItem.querySelector('.play-pause-song');
+      togglePlayPauseBtn(currentBtn);
+      togglePlayPauseBtn(playPauseInputSongBtn);
+      playPauseInputSongBtn.disabled = true;
+    }
+  }
+});
+
+playPauseInputSongBtn.addEventListener('click', (e) => {
+  if (audioPlayer.paused) {
+    audioPlayer.play();
+    togglePlayPauseBtn(e.target);
+  } else {
+    audioPlayer.pause();
+    togglePlayPauseBtn(e.target);
+  }
+});
+</script>
 </body>
 </html>
 
+
+    
