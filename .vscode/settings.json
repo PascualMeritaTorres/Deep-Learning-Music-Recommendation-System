@@ -11,16 +11,21 @@
         "librosa",
         "linspace",
         "matplotlib",
+        "mels",
         "optim",
         "pyplot",
         "randn",
         "reconst",
+        "savefig",
         "seaborn",
         "sklearn",
         "soundfile",
         "spotipy",
         "tensorboard",
+        "torchaudio",
         "tqdm",
-        "unsqueeze"
+        "unsqueeze",
+        "vmax",
+        "vmin"
     ]
 }

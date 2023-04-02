@@ -14,10 +14,30 @@ from torch.optim.lr_scheduler import StepLR
 # Import Matplotlib
 import matplotlib.pyplot as plt
 import seaborn as sns
+import matplotlib.ticker as ticker
+
 
 import model as Model
 from model_helpers import get_scores
 from paths import BINARY_PATH,VALID_PATH
+
+class CustomFormatter(ticker.ScalarFormatter):
+    def __init__(self, useOffset=True, useMathText=True):
+        super().__init__(useOffset=useOffset, useMathText=useMathText)
+
+    def _set_order_of_magnitude(self):
+        self.orderOfMagnitude = 0
+
+    def _set_format(self):
+        self.format = "%1.2f"
+
+    def __call__(self, x, pos=None):
+        if x.is_integer():
+            self.format = "%1.0f"
+        else:
+            self.format = "%1.2f"
+        return super().__call__(x, pos)
+
 
 class TrainingLogic(object):
     def __init__(self, data_loader, config):
@@ -46,6 +66,7 @@ class TrainingLogic(object):
         self.validation_losses = []
         self.validation_roc_aucs = []
         self.validation_pr_aucs = []
+        self.relative_loss_reductions = []
 
         # Define file paths
         self.binary_path=BINARY_PATH
@@ -146,6 +167,14 @@ class TrainingLogic(object):
 
             #self.writer.add_scalar('Loss/train', batch_loss.item(), epoch)
             self.train_losses.append(batch_loss.item())
+
+            # Compute the relative loss reduction and add it to the list
+            if len(self.train_losses) > 1:
+                last_loss = self.train_losses[-2]
+                current_loss = self.train_losses[-1]
+                relative_loss_reduction = (last_loss - current_loss) / last_loss
+                self.relative_loss_reductions.append(relative_loss_reduction)
+
             # Perform validation and update the best metric
             best_metric_so_far = self.get_validation(best_metric_so_far, epoch) # Calculate the Binary Cross Entropy loss of our current model using the validation set
 
@@ -221,41 +250,74 @@ class TrainingLogic(object):
                         epoch+1, self.number_of_epochs, iteration, len(self.data_loader), loss.item(),
                         datetime.timedelta(seconds=time.time()-start_time)))
             
+
     def plot_values(self):
         """
-        Plot the training loss, validation loss, ROC AUC, and PR AUC.
+        Plot the training loss, relative loss reduction, validation loss, ROC AUC, and PR AUC.
         """
         epochs = range(1, self.number_of_epochs + 1)
-
+        loss_reduction_epochs = range(2, self.number_of_epochs + 1)
         # Set a seaborn style for better visuals
         sns.set(style='whitegrid')
 
-        fig, axes = plt.subplots(2, 2, figsize=(12, 8))
-
         # Training Loss
-        axes[0, 0].plot(epochs, self.train_losses, label='Training Loss')
-        axes[0, 0].set(xlabel='Epoch', ylabel='Loss', title='Training Loss')
-        axes[0, 0].legend()
+        fig1, ax1 = plt.subplots(figsize=(9, 6))
+        ax1.plot(epochs, self.train_losses, color='red', label='Training Loss')
+        ax1.set(xlabel='Epoch', ylabel='Loss')
+        ax1.set_title('Training Loss')
+        ax1.legend(loc='upper right')
+        ax1.xaxis.set_major_formatter(CustomFormatter())
+
+        # Relative Loss Reduction
+        fig2, ax2 = plt.subplots(figsize=(9, 6))
+        ax2.plot(loss_reduction_epochs, self.relative_loss_reductions, color='purple', label='Relative Loss Reduction')
+        ax2.set(xlabel='Epoch', ylabel='Relative Loss Reduction')
+        ax2.set_title('Relative Loss Reduction')
+        ax2.legend(loc='upper right')
+        ax2.xaxis.set_major_formatter(CustomFormatter())
 
         # Validation Loss
-        axes[0, 1].plot(epochs, self.validation_losses, label='Validation Loss')
-        axes[0, 1].set(xlabel='Epoch', ylabel='Loss', title='Validation Loss')
-        axes[0, 1].legend()
+        fig3, ax3 = plt.subplots(figsize=(9, 6))
+        ax3.plot(epochs, self.validation_losses, color='red', label='Validation Loss')
+        ax3.set(xlabel='Epoch', ylabel='Loss')
+        ax3.set_title('Validation Loss')
+        ax3.legend(loc='upper right')
+        ax3.xaxis.set_major_formatter(CustomFormatter())
 
         # ROC AUC
-        axes[1, 0].plot(epochs, self.validation_roc_aucs, label='ROC AUC')
-        axes[1, 0].set(xlabel='Epoch', ylabel='ROC AUC', title='ROC AUC Score')
-        axes[1, 0].legend()
+        fig4, ax4 = plt.subplots(figsize=(9, 6))
+        ax4.plot(epochs, self.validation_roc_aucs, color='blue', label='ROC AUC')
+        ax4.set(xlabel='Epoch', ylabel='ROC AUC')
+        ax4.set_title('ROC AUC')
+        ax4.legend(loc='upper right')
+        ax4.xaxis.set_major_formatter(CustomFormatter())
 
         # PR AUC
-        axes[1, 1].plot(epochs, self.validation_pr_aucs, label='PR AUC')
-        axes[1, 1].set(xlabel='Epoch', ylabel='PR AUC', title='PR AUC Score')
-        axes[1, 1].legend()
+        fig5, ax5 = plt.subplots(figsize=(9, 6))
+        ax5.plot(epochs, self.validation_pr_aucs, color='purple', label='PR AUC')
+        ax5.set(xlabel='Epoch', ylabel='PR AUC')
+        ax5.set_title('PR AUC')
+        ax5.legend(loc='upper right')
+        ax5.xaxis.set_major_formatter(CustomFormatter())
 
-        fig.tight_layout()
+        fig1.tight_layout()
+        fig2.tight_layout()
+        fig3.tight_layout()
+        fig4.tight_layout()
+        fig5.tight_layout()
 
-        # Save the plot as a high-quality image
-        plt.savefig('training_results.png', dpi=300)
+        # Save the plots as high-quality images
+        plt.figure(fig1.number)
+        plt.savefig('training_loss.png', dpi=300)
+        plt.figure(fig2.number)
+        plt.savefig('relative_loss_reduction.png', dpi=300)
+        plt.figure(fig3.number)
+        plt.savefig('validation_loss.png', dpi=300)
+        plt.figure(fig4.number)
+        plt.savefig('roc_auc.png', dpi=300)
+        plt.figure(fig5.number)
+        plt.savefig('pr_auc.png', dpi=300)
 
-        # Display the plot
+        # Display the plots
         plt.show()
+
