@@ -25,7 +25,7 @@ class DataAugmentation(object):
         Parameters:
         -----------
         augmentation_type : str
-            Type of data augmentation to apply. Available options: "time_stretch", "pitch_shift", "dynamic_range", "white_noise".
+            Type of data augmentation to apply. Available options: "time_stretch", "pitch_shift", "dynamic_range".
         rate : float
             Rate of augmentation to apply. Its meaning varies depending on the type of augmentation.
 
@@ -64,8 +64,6 @@ class DataAugmentation(object):
             return self.pitch_shift(x, self.rate)
         elif self.augmentation_type == 'dynamic_range':
             return self.dynamic_range_compression(x, self.rate)
-        elif self.augmentation_type == 'white_noise':
-            return self.white_noise(x, self.rate)
 
     def time_stretch(self,x, rate):
         '''
@@ -76,7 +74,7 @@ class DataAugmentation(object):
         x : numpy.ndarray
             Input audio signal.
         rate : float
-            Stretch factor. Values should be within the range [2 ** (-.5), 2 ** (.5)].
+            Stretch factor. Values should be within the range [0.7071, 1.414].
 
         Returns:
         --------
@@ -94,7 +92,7 @@ class DataAugmentation(object):
         x : numpy.ndarray
             Input audio signal.
         rate : float
-            Shift factor. Values should be within the range [-1, 1].
+            Shift factor. Values should be within the range [-2, 2].
 
         Returns:
         --------
@@ -112,7 +110,7 @@ class DataAugmentation(object):
         x : numpy.ndarray
             Input audio signal.
         rate : float
-            Compression factor. Values should be within the range [4, 6].
+            Compression factor. Values should be within the range [1, 6].
 
         Returns:
         --------
@@ -165,31 +163,3 @@ class DataAugmentation(object):
             os.unlink(outfile)
 
         return x_out
-
-    def white_noise(self,x, rate):
-        '''
-        Adds white noise to the input audio signal.
-
-        Parameters:
-        -----------
-        x : numpy.ndarray
-            Input audio signal.
-        rate : float
-            Noise factor. Values should be within the range [0.1, 0.4].
-
-        Returns:
-        --------
-        numpy.ndarray
-            Audio signal with added white noise.
-        '''
-        n_frames = len(x)
-        noise_white = np.random.RandomState().randn(n_frames)
-        noise_fft = np.fft.rfft(noise_white)
-        values = np.linspace(1, n_frames * 0.5 + 1, n_frames // 2 + 1)
-        colored_filter = np.linspace(1, n_frames / 2 + 1, n_frames // 2 + 1) ** 0
-        noise_filtered = noise_fft * colored_filter
-        noise = librosa.util.normalize(np.fft.irfft(noise_filtered)) * (x.max())
-        if len(noise) < len(x):
-            x = x[:len(noise)]
-        return (1 - rate) * x + (noise * rate)
-

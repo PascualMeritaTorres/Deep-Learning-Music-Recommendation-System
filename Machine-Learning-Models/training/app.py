@@ -9,6 +9,9 @@ app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = 'tmp/'
 app.config['SONGS_FOLDER'] = DATA_PATH
 
+"""
+TO-DO: IMPLEMENT A DOWNLOAD BUTTON FOR DJS
+"""
 @app.route('/')
 def index():
     return render_template('index.html')

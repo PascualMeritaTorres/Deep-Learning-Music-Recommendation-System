@@ -99,7 +99,7 @@ class Evaluate(object):
 
 
 @click.command()
-@click.option('--model_name', type=click.Choice(['fcn', 'crnn', 'short', 'short_res']), default='fcn', help='name of the model to use')
+@click.option('--model_name', type=click.Choice(['fcn', 'crnn', 'short', 'short_res']), default='short_res', help='name of the model to use')
 @click.option('--batch_size', type=int, default=8, help='number of samples passed through to the network at one time')
 @click.option('--model_load_path', type=str,default=MODEL_LOAD_PATH, help='path to load the saved model')
 @click.option('--data_path', type=str, default=DATA_PATH, help='path to the data directory')

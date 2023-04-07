@@ -13,7 +13,7 @@ import torch
 from torch.autograd import Variable
 
 import model as Model
-from paths import BINARY_PATH,TAGS_PATH,MODEL_LOAD_PATH,DATA_PATH,SAMPLE_SONG_PATH,FULL_DATASET_PATH,DATA_PATH
+from paths import BINARY_PATH,TAGS_PATH,MODEL_LOAD_PATH,DATA_PATH,SAMPLE_SONG_PATH,FULL_DATASET_PATH,DATA_PATH,MTAT_TAGS_PATH
 
 class RetrieveSimilarSongs(object):
     """
@@ -117,7 +117,7 @@ class RetrieveSimilarSongs(object):
         mean_out = np.array(out).mean(axis=0)
         return mean_out
     
-    def find_similar_songs(self):
+    def find_similar_songs_spotify_features(self,recommended_songs):
         """
         Find and play similar songs based on the top tags.
 
@@ -153,8 +153,12 @@ class RetrieveSimilarSongs(object):
             })
 
         return similar_songs
-        
-        
+    
+    def find_similar_songs_tags(self):
+        print("Hello")
+    
+    
+
         
     def give_song_recommendations(self):
         """
@@ -163,7 +167,9 @@ class RetrieveSimilarSongs(object):
         Returns:
             list: A list of tuples containing the top tags and their confidence values.
         """
-        return self.find_similar_songs()
+        recommended_songs=self.find_similar_songs_tags()
+        recommended_songs=self.find_similar_songs_spotify_features(recommended_songs)
+        return recommended_songs
 
 @click.command()
 @click.option('--model_name', type=click.Choice(['fcn', 'crnn', 'short', 'short_res']), default='short_res', help='Model type to use')
