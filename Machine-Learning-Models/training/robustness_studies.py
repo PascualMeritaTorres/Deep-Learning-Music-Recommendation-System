@@ -135,7 +135,7 @@ class Predict(object):
         loss_scores = []
         
         for rate in np.arange(-2, 2, 0.2):
-            self.time_stretch_augmentation = DataAugmentation('pitch_shift', rate)
+            self.pitch_shift_augmentation = DataAugmentation('pitch_shift', rate)
             loss,roc_auc,pr_auc =get_scores(mode='robustness_studies',model=self.model,list_to_iterate_on=self.test_list,
                                                                                             batch_size=self.batch_size,binary=self.binary,
                                                                                             data_path=self.data_path,input_length=self.input_length,
@@ -190,15 +190,14 @@ class Predict(object):
         pr_auc_scores = []
         loss_scores = []
         
-        for rate in np.arange(4, 5, 1):
-            self.dynamic_range_compression_augmentation=DataAugmentation('dynamic_range',rate)
-            loss,roc_auc,pr_auc=get_scores(mode='robustness_studies',model=self.model,list_to_iterate_on=self.test_list,
+        self.dynamic_range_compression_augmentation=DataAugmentation('dynamic_range',4)
+        loss,roc_auc,pr_auc=get_scores(mode='robustness_studies',model=self.model,list_to_iterate_on=self.test_list,
                                                                                             batch_size=self.batch_size,binary=self.binary,
                                                                                             data_path=self.data_path,input_length=self.input_length,
                                                                                             augmentation_class=self.dynamic_range_compression_augmentation)  
-            roc_auc_scores.append((roc_auc))
-            pr_auc_scores.append((pr_auc))
-            loss_scores.append((loss))
+        roc_auc_scores.append((roc_auc))
+        pr_auc_scores.append((pr_auc))
+        loss_scores.append((loss))
 
         roc_auc_avg = np.mean(roc_auc_scores)
         pr_auc_avg = np.mean(pr_auc_scores)
@@ -211,8 +210,8 @@ class Predict(object):
 
 
     def test(self):
-        self.time_stretch_scores()
-        self.pitch_shift_augmentation_scores()
+        #self.time_stretch_scores()
+        #self.pitch_shift_augmentation_scores()
         self.dynamic_range_compression_augmentation_scores()
                                                                                                                                                                  
 

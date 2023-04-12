@@ -25,7 +25,7 @@ class DataAugmentation(object):
         Parameters:
         -----------
         augmentation_type : str
-            Type of data augmentation to apply. Available options: "time_stretch", "pitch_shift", "dynamic_range".
+            Type of data augmentation to apply. Available options: "time_stretch", "pitch_shift".
         rate : float
             Rate of augmentation to apply. Its meaning varies depending on the type of augmentation.
 
@@ -36,14 +36,6 @@ class DataAugmentation(object):
         '''
         self.augmentation_type = augmentation_type
         self.rate = rate
-        self.PRESETS =json.load(open(resource_filename(__name__, "dynamic_compression_presets.json")))
-        self.preset_dict = {1: "radio",
-                        2: "film standard",
-                        3: "film light",
-                        4: "music standard",
-                        5: "music light",
-                        6: "speech"}
-
     def modify(self,x):
         '''
         Modifies the input audio signal according to the selected data augmentation type.
@@ -62,8 +54,6 @@ class DataAugmentation(object):
             return self.time_stretch(x, self.rate)
         elif self.augmentation_type == 'pitch_shift':
             return self.pitch_shift(x, self.rate)
-        elif self.augmentation_type == 'dynamic_range':
-            return self.dynamic_range_compression(x, self.rate)
 
     def time_stretch(self,x, rate):
         '''
@@ -101,65 +91,6 @@ class DataAugmentation(object):
         '''
         return librosa.effects.pitch_shift(x, 16000, rate)
 
-    def dynamic_range_compression(self,x, rate):
-        '''
-        Modifies audio signal by compressing its dynamic range.
 
-        Parameters:
-        -----------
-        x : numpy.ndarray
-            Input audio signal.
-        rate : float
-            Compression factor. Values should be within the range [1, 6].
+ 
 
-        Returns:
-        --------
-        numpy.ndarray
-            Compressed audio signal.
-        '''
-        return self.sox(x, 16000, "compand", *self.PRESETS[self.preset_dict[rate]])
-
-    @staticmethod
-    def sox(self,x, fs, *args):
-        '''
-        Applies the SoX tool to modify the input audio signal.
-
-        Parameters:
-        -----------
-        x : numpy.ndarray
-            Input audio signal.
-        fs : int
-            Sample rate of the input audio signal.
-        *args : list of str
-            SoX arguments to apply.
-
-        Returns:
-        --------
-        numpy.ndarray
-            Modified audio signal.
-        '''
-        assert fs > 0
-
-        fdesc, infile = tempfile.mkstemp(suffix=".wav")
-        os.close(fdesc)
-        fdesc, outfile = tempfile.mkstemp(suffix=".wav")
-        os.close(fdesc)
-
-        psf.write(infile, x, fs)
-
-        try:
-            arguments = ["sox", infile, outfile, "-q"]
-            arguments.extend(args)
-
-            subprocess.check_call(arguments)
-
-            x_out, fs = psf.read(outfile)
-            x_out = x_out.T
-            if x.ndim == 1:
-                x_out = librosa.to_mono(x_out)
-
-        finally:
-            os.unlink(infile)
-            os.unlink(outfile)
-
-        return x_out
