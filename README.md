@@ -1,4 +1,20 @@
-# A Novel Content-based Music Recommendation System using Deep Learning Methodologies
+# Content-based Music Recommendations: A Deep Learning Approach
+
+## General Description
+Major music streaming platforms, such as Spotify and Pandora, implement very sophisticated systems to recommend songs.
+They avoid only recommending similar songs as the user may get bored, and aim to introduce some tracks that a user may have never heard of, to maintain user engagement. 
+However. certain demographics, such as DJs and music producers, exhibit different needs from those of he general public.
+ DJs primarily seeks songs that are similar to the one they are playing, so they can mix them better, and music producers often search for similar tracks to draw some inspiration from them. 
+ Therefore they need a system that focused only on similarity-based recommendations.
+
+Our research aims to bridge the gap in the market described above by employing a two-step
+approach to similarity-based recommendations. First, we extract meaningful high-level tags,
+such as instruments and genres, using a Convolutional Recurrent Neural Network. Songs lacking
+these tags are filtered out as potential recommendations. Next, we employ a Short-Chunk
+Convolutional Neural Network with Residual Connections to extract medium-level features,
+such as ’danceability’ and ’tempo’. From the subset of songs sharing the same high-level tags,
+the most similar tracks are determined based on cosine similarity of the extracted medium-level
+features.
 
 ## How to reproduce the research project
 **1)**: Clone the repository:
@@ -6,38 +22,67 @@
 git clone https://github.com/PascualMeritaTorres/Deep-Learning-Music-Recommendation-System.git
 ```
 
-**2)**: This project can be subdivided into 2 parts, namely data preprocessing which is done inside the Data-Creation-And-Preprocessing, and the training of the machine learning model, which is done inside the Machine-Learning-Models folder. 
+**2)**: This project can be subdivided into 2 parts, namely data preprocessing which is done inside the Data-Creation-And-Preprocessing, and the training of the machine learning models, which is done inside the CRNN-Model and Short-ChunkCNNRes-Model folders. 
 
-Therefore, to facilitate package versions you must create 2 different environments, for executing commands inside each of the folders.
+Therefore, to facilitate package versions you must create 3 different environments, for executing commands inside each of the folders.
 
- Create a conda environment and install all the required packages for the machine learning model training:
+Create a conda environment and install all the required packages for the CRNN machine learning model:
 
-```
-cd Machine-Learning-Models
-conda env create -f environment.yml -n YOUR_ENV_NAME
-```
+    ```
+    cd CRNN-Model
+    conda env create -f environment.yml -n YOUR_ENV_NAME
+    ```
+
+Create a conda environment and install all the required packages for the Short-ChunkCNNRes machine learning model:
+
+    ```
+    cd Short-ChunkCNNRes-Model
+    conda env create -f environment.yml -n YOUR_ENV_NAME
+    ```
+
+
 Create a pip virtual environment and install all the packages for data preprocessing:
 
-```
-cd Dataset-Creation-And-Preprocessing
-virtualenv YOUR_ENV_NAME
-source YOUR_ENV_NAME/bin/activate
-pip install -r requirements.txt
-```
+    ```
+    cd Dataset-Creation-And-Preprocessing
+    pip install virtualenv
+    virtualenv YOUR_ENV_NAME
+    source YOUR_ENV_NAME/bin/activate
+    pip install -r requirements.txt
+    ```
 
-**3)**: Retrieve spotify data, and preprocess data (See README file under the SpotifyDataPreprocessingScripts folder)
-**4)**: Train the model or receive music recommendations from an input song (See README file under the MachineLearningModelScripts folder)
+**3)**: Retrieve spotify data, and preprocess data (For detailed instructions, see `README.md` file under the Dataset-Creation-And-Preprocessing folder)
+**4)**: Choose one of the following options:
+- Train the model (For detailed instructions, see the `README.md` file under the CRNN-Model and Short-ChunkCNNRes-Model folder)
+- Receive music recommendations from an input song (For detailed instructions, see the `README.md` file under the MachineLearningModelScripts folder)
+
 
 ## Repo Structure
 ```
 │
-├── Dataset-Creation-And-Preprocessing    <- Serialized Jupyter notebooks created in the project.
+├── Dataset-Creation-And-Preprocessing    
 │   ├── notebooks                         <- The necessary notebooks to extract and modify Spotify data
 │   ├── our_data                          <- Where the dataset will be stored
 │   └── README.md                         <- Detailed Instructions to prepare the Spotify data
 │
 │
-├── Machine-Learning-Models
+├── CRNN-Model
+│   ├── models                            <- Stores the pre-trained machine learning models
+│   ├── preprocessing                     <- Scripts to preprocess data
+│   ├── split                             <- Includes the data split used 
+│   ├── test_songs                        <- Dummy-songs used for testing the models
+│   ├── training                          <- Scripts to train the model
+│   └── README.md                         <- Detailed instructions to train the model or receive music recommendations
+│
+├── Short-ChunkCNNRes-Model
+│   ├── models                            <- Stores the pre-trained machine learning models
+│   ├── preprocessing                     <- Scripts to preprocess data
+│   ├── split                             <- Includes the data split used 
+│   ├── test_songs                        <- Dummy-songs used for testing the models
+│   ├── training                          <- Scripts to train the model
+│   └── README.md                         <- Detailed instructions to train the model or receive music recommendations
+│
+├── Recommendations
 │   ├── models                            <- Stores the pre-trained machine learning models
 │   ├── preprocessing                     <- Scripts to preprocess data
 │   ├── split                             <- Includes the data split used 

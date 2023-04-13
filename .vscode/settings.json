@@ -10,6 +10,7 @@
         "hyperparameters",
         "infile",
         "irfft",
+        "iterrows",
         "librosa",
         "linspace",
         "matplotlib",

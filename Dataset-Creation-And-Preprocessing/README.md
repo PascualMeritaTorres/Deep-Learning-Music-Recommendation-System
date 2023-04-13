@@ -1,33 +1,37 @@
-# Instructions to use the Sptify API data
+# Instructions to create your own dataset using Spotify's API
 
 ## Spotify Keys Creation
 
 1. Create a new app in [Spotify for Developer's Dashboard](https://developer.spotify.com/dashboard)
 2. Retrieve the CLIENT_ID and CLIENT_SECRET of your app
-3. Set up a redirect url in your app. (Like 'http://localhost:8888/callback')
-3. Change the variables 'client_id' and 'client_secret' in spotify_mp3_download.ipynb to the ones retrieved in step 2
-4. Export the path variables. To do so execute the command:
+3. Set up a redirect url in your app. (i.e 'http://localhost:8888/callback')
+4. Change the variables 'client_id' and 'client_secret' in spotify_mp3_download.ipynb to the ones retrieved in step 2
+5. Export the path variables. To do so execute the command:
 
-```sh
-nano ~/.zshrc
-```
+    ```sh
+    nano ~/.zshrc
+    ```
 
-and at the end of the document do:
+    and at the end of the document do:
 
-```sh
-export SPOTIPY_CLIENT_ID='your_client_id'
-export SPOTIPY_CLIENT_SECRET='your_client_secret'
-export SPOTIPY_REDIRECT_URI='your_redirect_url'
-```
+    ```sh
+    export SPOTIPY_CLIENT_ID='your_client_id'
+    export SPOTIPY_CLIENT_SECRET='your_client_secret'
+    export SPOTIPY_REDIRECT_URI='your_redirect_url'
+    ```
 
-5. Execute:
+6. Execute:
 
-```sh
-source ~/.zshrc
-```
+    ```sh
+    source ~/.zshrc
+    ```
+
+## Warning
+
+Make sure you have installed the requirements listed in `requirements.txt` before running the code below.
 
  ## Data Preprocessing (All Jupyter Notebooks are located under the notebooks folder)
-
+ 
 1. Run the first cell of data_preprocessing.ipynb to remove the irrelevant columns of the initial dataset
 2. Run the first cell of spotify_mp3_download.ipynb to download the spotify songs.
 3. Run the second cell of data_preprocessing.ipynb to modify the csv to only include downloaded songs (there can be problems with spotify) 
