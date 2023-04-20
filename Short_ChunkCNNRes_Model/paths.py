@@ -1,0 +1,11 @@
+BINARY_PATH = './../Dataset_Creation_And_Preprocessing/data_final/binary.npy'
+VALID_PATH = './../Dataset_Creation_And_Preprocessing/data_final/val.csv'
+TRAIN_PATH = './../Dataset_Creation_And_Preprocessing/data_final/train.csv'
+TEST_PATH = './../Dataset_Creation_And_Preprocessing/data_final/test.csv'
+TAGS_PATH = './../Dataset_Creation_And_Preprocessing/data_final/tags.npy'
+FULL_DATASET_PATH = './../Dataset_Creation_And_Preprocessing/data_final/spotify_data_downloaded_songs.csv'
+MP3_DATA_PATH='/Users/pascualmeritatorres/Developer/Dissertation/actual-dissertation/Dataset_Creation_And_Preprocessing/notebooks/mp3-new-download-session'
+DATA_NUMPY_PATH='/Users/pascualmeritatorres/Developer/Dissertation/actual-dissertation/Dataset_Creation_And_Preprocessing/notebooks/mp3-new-download-session'
+
+MODEL_LOAD_PATH='/Users/pascualmeritatorres/Developer/Dissertation/actual-dissertation/Short_ChunkCNNRes_Model/models/our_models/short_res_model.pth'
+MODEL_SAVE_PATH='/Users/pascualmeritatorres/Developer/Dissertation/actual-dissertation/Short_ChunkCNNRes_Model/models/our_models'

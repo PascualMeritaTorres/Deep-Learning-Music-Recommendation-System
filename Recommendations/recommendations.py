@@ -14,8 +14,8 @@ from sklearn.metrics.pairwise import cosine_similarity
 import torch
 from torch.autograd import Variable
 
-import model as Model
-from paths import BINARY_PATH,TAGS_PATH,MODEL_LOAD_PATH,DATA_PATH,SAMPLE_SONG_PATH,FULL_DATASET_PATH,DATA_PATH,MTAT_TAGS_PATH
+from ..Short_ChunkCNNRes_Model.training import model as Model
+from paths import SHORT_RES_MODEL_PATH, CRNN_MODEL_PATH,MP3_DATA_PATH,SAMPLE_SONG_PATH,FULL_DATASET_PATH,MP3_DATA_PATH,MTAT_TAGS_PATH
 
 class RetrieveSimilarSongs(object):
     """
@@ -264,13 +264,12 @@ class RetrieveSimilarSongs(object):
 
 
 @click.command()
-@click.option('--model_name', type=click.Choice(['fcn', 'crnn', 'short', 'short_res']), default='short_res', help='Model type to use')
 @click.option('--batch_size', type=int, default=16, help='Number of samples passed through to the network at one time')
-@click.option('--short_res_model_load_path', type=str, default=MODEL_LOAD_PATH, help='Path to load the short_res saved model')
-@click.option('--crnn_model_load_path', type=str, default=MODEL_LOAD_PATH, help='Path to load the crnn saved model')
+@click.option('--short_res_model_load_path', type=str, default=SHORT_RES_MODEL_PATH, help='Path to load the short_res saved model')
+@click.option('--crnn_model_load_path', type=str, default=CRNN_MODEL_PATH, help='Path to load the crnn saved model')
 @click.option('--sample_song_path', type=str, default=SAMPLE_SONG_PATH, help='Path to the test song')
-@click.option('--songs_path', type=str, default=DATA_PATH, help='Path to the songs dataset')
-def run(model_name, batch_size,short_res_model_load_path,crnn_model_load_path, sample_song_path, songs_path):
+@click.option('--songs_path', type=str, default=MP3_DATA_PATH, help='Path to the songs dataset')
+def run(batch_size,short_res_model_load_path,crnn_model_load_path, sample_song_path, songs_path):
     """
     This script retrieves similar songs using the specified model.
 
@@ -287,7 +286,6 @@ def run(model_name, batch_size,short_res_model_load_path,crnn_model_load_path, s
             self.__dict__.update(kwargs)
 
     config = Config(
-        model_name=model_name,
         batch_size=batch_size,
         short_res_model_load_path=short_res_model_load_path,
         crnn_model_load_path=crnn_model_load_path,

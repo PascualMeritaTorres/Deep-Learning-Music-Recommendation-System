@@ -4,8 +4,8 @@ import pandas as pd
 import torch
 import librosa
 from torch.autograd import Variable
-from paths import MTAT_TAGS_PATH,FULL_DATASET_PATH,DATA_PATH,MTAT_MODEL_LOAD_PATH,DATA_NUMPY_PATH
-import model as Model
+from paths import CRNN_MODEL_PATH,MTAT_TAGS_PATH,FULL_DATASET_PATH,DATA_NUMPY_PATH
+from ..Short_ChunkCNNRes_Model.training import model as Model
 from tqdm import tqdm
 
 class MusicTagger:
@@ -39,7 +39,7 @@ class MusicTagger:
             self.model=Model.ShortChunkCNN_Res()
 
         # load model
-        self.load_model(MTAT_MODEL_LOAD_PATH)
+        self.load_model(CRNN_MODEL_PATH)
 
 
     def get_cvs(self):
@@ -71,7 +71,7 @@ class MusicTagger:
 
         # Iterate through each row in the full dataset
         for index, row in tqdm(self.full_dataset.iterrows(), total=self.full_dataset.shape[0]):
-            # Find the mp3 in DATA_PATH by getting the element in the folder that is called row['track_uri']+'.mp3'
+            # Find the mp3 in MP3_DATA_PATH by getting the element in the folder that is called row['track_uri']+'.mp3'
             song_path = os.path.join(self.numpy_songs_path, row['track_uri'] + '.npy')
             # Get the features for the current song
             self.model = self.model.eval()

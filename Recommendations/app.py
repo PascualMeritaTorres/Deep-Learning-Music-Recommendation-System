@@ -3,11 +3,11 @@ import json
 import os
 from werkzeug.utils import secure_filename
 from recommendations import RetrieveSimilarSongs
-from paths import BINARY_PATH, TAGS_PATH, MODEL_LOAD_PATH, DATA_PATH, SAMPLE_SONG_PATH, FULL_DATASET_PATH, DATA_PATH,MTAT_MODEL_LOAD_PATH
+from paths import SHORT_RES_MODEL_PATH,CRNN_MODEL_PATH,MP3_DATA_PATH, MP3_DATA_PATH
 
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = 'tmp/'
-app.config['SONGS_FOLDER'] = DATA_PATH
+app.config['SONGS_FOLDER'] = MP3_DATA_PATH
 
 """
 TO-DO: IMPLEMENT A DOWNLOAD BUTTON FOR DJS
@@ -30,10 +30,10 @@ def get_recommendations():
     config = Config(
         model_name='short_res',
         batch_size=16,
-        short_res_model_load_path=MODEL_LOAD_PATH,
-        crnn_model_load_path=MTAT_MODEL_LOAD_PATH,
+        short_res_model_load_path=SHORT_RES_MODEL_PATH,
+        crnn_model_load_path=CRNN_MODEL_PATH,
         sample_song_path=sample_song_path,
-        songs_path=DATA_PATH
+        songs_path=MP3_DATA_PATH
     )
     s = RetrieveSimilarSongs(config)
     recommendations = s.give_song_recommendations()
