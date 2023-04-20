@@ -27,10 +27,57 @@ Firstly, upon receiving a user-inputted audio file, tags, such as instruments an
 </details>
 
 
+<details>
+<summary><b>📈 Results </b></summary>
+<table>
+  <thead>
+    <tr>
+      <th>Model or Recommendation System</th>
+      <th>Accuracy</th>
+      <th>Comparison with Relevant Literature</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Short-Chunk Convolutional Neural Network with Residual Connections</td>
+      <td>74.4%</td>
+      <td>2.9% increase </td>
+    </tr>
+  	<tr>
+      <td>Convolutional Recurrent Neural Network</td>
+      <td>84.1%</td>
+      <td>3% decrease </td>
+    </tr>
+    <tr>
+      <td>Objective Evaluation of Recommendations</td>
+      <td>62.3%</td>
+      <td>N/A</td>
+    </tr>
+    <tr>
+      <td>Subjective Evaluation of Recommendations</td>
+      <td>70%</td>
+      <td>N/A</td>
+    </tr>
+  </tbody>
+</table>
+</details>
+
+
+
+
+
+
+
+
+
+
+
+
+
 ## How to reproduce the research project
 
 <details>
-<summary><b>📌Instructions</b></summary>
+<summary><b>📌 Instructions</b></summary>
 
 **1)**: Clone the repository:
 
@@ -38,28 +85,28 @@ Firstly, upon receiving a user-inputted audio file, tags, such as instruments an
 git clone https://github.com/PascualMeritaTorres/Deep-Learning-Music-Recommendation-System.git
 ```
 
-**2)**: This project can be subdivided into 2 parts, namely data preprocessing which is done inside the Data-Creation-And-Preprocessing, and the training of the machine learning models, which is done inside the CRNN-Model and Short-ChunkCNNRes-Model folders.
+**2)**: This project can be subdivided into 2 parts, namely data preprocessing which is done inside the Data_Creation_And_Preprocessing, and the training of the machine learning models, which is done inside the CRNN_Model and Short_ChunkCNNRes_Model folders.
 
 Therefore, to facilitate package versions you must create 3 different environments, for executing commands inside each of the folders.
 
 Create a conda environment and install all the required packages for the CRNN machine learning model:
 
     ```
-    cd CRNN-Model
+    cd CRNN_Model
     conda env create -f environment.yml -n YOUR_ENV_NAME
     ```
 
 Create a conda environment and install all the required packages for the Short-ChunkCNNRes machine learning model:
 
     ```
-    cd Short-ChunkCNNRes-Model
+    cd Short_ChunkCNNRes_Model
     conda env create -f environment.yml -n YOUR_ENV_NAME
     ```
 
 Create a pip virtual environment and install all the packages for data preprocessing:
 
     ```
-    cd Dataset-Creation-And-Preprocessing
+    cd Dataset_Creation_And_Preprocessing
     pip install virtualenv
     virtualenv YOUR_ENV_NAME
     source YOUR_ENV_NAME/bin/activate
@@ -75,44 +122,45 @@ Create a pip virtual environment and install all the packages for data preproces
 </details>
 
 
-## Repo Structure
+## Repository Structure
 <details>
 <summary><b>🔨 Structure</b></summary>
 
 ```
 │
-├── Dataset-Creation-And-Preprocessing    
+├── CRNN_Model
+│   ├── dataset                           <- Stores the dataset files
+│   ├── evaluation                        <- Script to evaluate the model
+│   ├── models                            <- Stores the pre-trained machine learning models
+│   ├── preprocessing                     <- Scripts to preprocess data
+│   ├── robustness_studies                <- Scripts to assess the model robustness 
+│   ├── training                          <- Scripts to train the model
+│   └── README.md                         <- Detailed instructions to train the model or receive music recommendations
+│
+├── Dataset_Creation_And_Preprocessing    
 │   ├── notebooks                         <- The necessary notebooks to extract and modify Spotify data
 │   ├── our_data                          <- Where the dataset will be stored
 │   └── README.md                         <- Detailed Instructions to prepare the Spotify data
 │
-│
-├── CRNN-Model
-│   ├── models                            <- Stores the pre-trained machine learning models
-│   ├── preprocessing                     <- Scripts to preprocess data
-│   ├── split                             <- Includes the data split used 
-│   ├── test_songs                        <- Dummy-songs used for testing the models
-│   ├── training                          <- Scripts to train the model
-│   └── README.md                         <- Detailed instructions to train the model or receive music recommendations
-│
-├── Short-ChunkCNNRes-Model
-│   ├── models                            <- Stores the pre-trained machine learning models
-│   ├── preprocessing                     <- Scripts to preprocess data
-│   ├── split                             <- Includes the data split used 
-│   ├── test_songs                        <- Dummy-songs used for testing the models
-│   ├── training                          <- Scripts to train the model
-│   └── README.md                         <- Detailed instructions to train the model or receive music recommendations
+├── Images   
+│   └── system_design.jpg                 <- Illustration of the overall system design and architecture
 │
 ├── Recommendations
-│   ├── models                            <- Stores the pre-trained machine learning models
-│   ├── preprocessing                     <- Scripts to preprocess data
+│   ├── app.py                            <- Code that runs the web-app
+│   ├── recommendations.py                <- Script that the app.py uses to give recommendations. Can be used as a stand-alone file too
 │   ├── split                             <- Includes the data split used 
 │   ├── test_songs                        <- Dummy-songs used for testing the models
+│   └── README.md                         <- Detailed instructions to train the model or receive music recommendations
+│
+├── Short_ChunkCNNRes_Model
+│   ├── evaluation                        <- Script to evaluate the model
+│   ├── models                            <- Stores the pre-trained machine learning models
+│   ├── preprocessing                     <- Scripts to preprocess data
+│   ├── robustness_studies                <- Scripts to assess the model robustness 
 │   ├── training                          <- Scripts to train the model
 │   └── README.md                         <- Detailed instructions to train the model or receive music recommendations
 |
-├── README.md                             <- The document you are currently reading, written for developers to replicate 
-|                                         the environment used in the research project
-|
-└── requirements.txt                      <- The packages that must be installed
+└── README.md                             <- The document you are currently reading, written for developers to replicate 
+                                             the environment used in the research project
+
 ```
