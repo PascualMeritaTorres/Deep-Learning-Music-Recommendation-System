@@ -2,3 +2,10 @@
 __pycache__/
 training/models/
 training/runs/
+*.zip
+.*
+*__pycache__*
+*.pyc
+.vscode
+
+
