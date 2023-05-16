@@ -114,6 +114,7 @@ Create a pip virtual environment and install all the packages for data preproces
     ```
 
 **3)**: Retrieve spotify data, and preprocess data (For detailed instructions, see `README.md` file under the Dataset-Creation-And-Preprocessing folder)
+
 **4)**: Choose one of the following options:
 
 - Train the model (For detailed instructions, see the `README.md` file under the CRNN-Model and Short-ChunkCNNRes-Model folder)
