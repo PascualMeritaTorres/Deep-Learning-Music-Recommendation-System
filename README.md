@@ -1,4 +1,4 @@
-# Similarity-based Recommendations for DJs and Music Producers: A Deep Learning Approach
+# Similarity-based Recommendations: A Deep Learning Approach
 
 This project aims to provide a novel approach to music recommendations specifically tailored for DJs and music producers, focusing on similarity-based suggestions. By leveraging deep learning techniques, including Convolutional Recurrent Neural Networks and Short-Chunk Convolutional Neural Networks with Residual Connections, we extract and utilize both high-level tags and medium-level features to offer precise recommendations.
 
