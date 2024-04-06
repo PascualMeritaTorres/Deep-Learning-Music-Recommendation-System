@@ -1,84 +1,54 @@
 # Similarity-based Recommendations for DJs and Music Producers: A Deep Learning Approach
 
+This project aims to provide a novel approach to music recommendations specifically tailored for DJs and music producers, focusing on similarity-based suggestions. By leveraging deep learning techniques, including Convolutional Recurrent Neural Networks and Short-Chunk Convolutional Neural Networks with Residual Connections, we extract and utilize both high-level tags and medium-level features to offer precise recommendations.
+
+![Design and architecture of the proposed approach in this research](./Images/system_design.jpg)
+
 ## General Description
 
 <details>
 <summary><b>💡 Motivation</b></summary>
+  
+- Major music streaming platforms, such as Spotify and Apple Music, have implemented sophisticated systems to provide tailored song recommendations to their users. They believe attaining the best recommendations requires balancing certain trade-offs. For instance, they recommend a diverse selection of genres and styles while ensuring recommended songs are not too dissimilar to the input.  However, certain demographics, such as disc jockeys (DJs) and music producers, exhibit unique needs that diverge from those of the general public.
 
-Major music streaming platforms, such as Spotify and Apple Music, have implemented sophisticated systems to provide tailored song recommendations to their users. They believe attaining the best recommendations requires balancing certain trade-offs. For instance, they recommend a diverse selection of genres and styles while ensuring recommended songs are not too dissimilar to the input.  However, certain demographics, such as disc jockeys (DJs) and music producers, exhibit unique needs that diverge from those of the general public.
+- Firstly, they really prioritize similarity-based recommendations. This is because DJs seek songs that closely resemble the one they are currently playing, and similarly, music producers want similar tracks with the objective of drawing inspiration from them.
 
-Firstly, they really prioritize similarity-based recommendations. This is because DJs seek songs that closely resemble the one they are currently playing, and similarly, music producers want similar tracks with the objective of drawing inspiration from them.
+- Secondly, DJs frequently play unreleased songs, and music producers require recommendations for unfinished works, which are still “in production”. Therefore, these songs are not in any database, like the one Spotify could have, and so their features are not known. As a result, their features need to be extracted. In other words, a recommendation system tailored to their needs must allow users to upload their songs in audio format, and the system must employ a method for feature extraction before recommending songs.
 
-Secondly, DJs frequently play unreleased songs, and music producers require recommendations for unfinished works, which are still “in production”. Therefore, these songs are not in any database, like the one Spotify could have, and so their features are not known. As a result, their features need to be extracted. In other words, a recommendation system tailored to their needs must allow users to upload their songs in audio format, and the system must employ a method for feature extraction before recommending songs.
+- Thirdly, DJs and Music producers typically favour recommendations with shared high-level features (tags) like instruments and genres. This is because DJs find it is simpler to mix tracks from the same genre, and music producers feel more creatively inspired by listening to songs with similar instrumentation. However, recommending song with similar tags is simply not enough. Tracks from the same genre or with similar instruments can still display huge differences which may be crucial for DJs and music producers. To give a very simple example, two songs within the same genre may exhibit a drastic difference in tempo, with one being exceptionally fast and the other very slow. This poses a challenge for DJs as it may be very difficult to mix the two songs together. Additionally, music producers wont be able to draw as much inspiration from a very slow song if they want to produce a fast song, as different mixing and production techniques may be required for each of them. Consequently, mixing tags and medium-level features is crucial when developing a music recommendation system tailored to these demographics.
 
-Thirdly, DJs and Music producers typically favour recommendations with shared high-level features (tags) like instruments and genres. This is because DJs find it is simpler to mix tracks from the same genre, and music producers feel more creatively inspired by listening to songs with similar instrumentation. However, recommending song with similar tags is simply not enough. Tracks from the same genre or with similar instruments can still display huge differences which may be crucial for DJs and music producers. To give a very simple example, two songs within the same genre may exhibit a drastic difference in tempo, with one being exceptionally fast and the other very slow. This poses a challenge for DJs as it may be very difficult to mix the two songs together. Additionally, music producers wont be able to draw as much inspiration from a very slow song if they want to produce a fast song, as different mixing and production techniques may be required for each of them. Consequently, mixing tags and medium-level features is crucial when developing a music recommendation system tailored to these demographics.
 
 </details>
 
 <details>
 <summary><b>🔎 Approach</b></summary>
 
-The primary objective of this research project is to develop a two-step approach to similarity-based music recommendations tailored for DJs and music producers, addressing the aforementioned requirements.
+- The primary objective of this research project is to develop a two-step approach to similarity-based music recommendations tailored for DJs and music producers, addressing the aforementioned requirements.
 
-Firstly, upon receiving a user-inputted audio file, tags, such as instruments and genres, are extracted using a Convolutional Recurrent Neural Network , as seen in the bottom part of the figure below. Songs that lack these tags are excluded from the pool of potential recommendations. Secondly, the audio file is divided into small segments or chunks and is processed through a Short-Chunk Convolutional Neural Network with Residual Connections. Medium-level features, including tempo and a song’s key, are extracted. Cosine similarity is employed to compare these medium-level features with the subset of songs with common tags. The result is a curated selection of similar songs.
+- Firstly, upon receiving a user-inputted audio file, tags, such as instruments and genres, are extracted using a Convolutional Recurrent Neural Network , as seen in the bottom part of the figure below. Songs that lack these tags are excluded from the pool of potential recommendations.
+- Secondly, the audio file is divided into small segments or chunks and is processed through a Short-Chunk Convolutional Neural Network with Residual Connections. Medium-level features, including tempo and a song’s key, are extracted. Cosine similarity is employed to compare these medium-level features with the subset of songs with common tags. The result is a curated selection of similar songs.
+</details>
 
-<img src="./Images/system_design.jpg" alt="Design and architecture of the proposed approach in this research" width="1000">
+## 📈 Results
+
+<details>
+<summary>View the performance results</summary>
+
+| Model or Recommendation System                             | Accuracy | Comparison with Relevant Literature |
+|------------------------------------------------------------|----------|------------------------------------|
+| Short-Chunk Convolutional Neural Network with Residual Connections | 74.4%    | 2.9% increase                      |
+| Convolutional Recurrent Neural Network                     | 84.1%    | 3% decrease                        |
+| Objective Evaluation of Recommendations                    | 62.3%    | N/A                                |
+| Subjective Evaluation of Recommendations                   | 70%      | N/A                                |
 
 </details>
 
+## 📌 How to Reproduce the Research Project
 
 <details>
-<summary><b>📈 Results </b></summary>
-<table>
-  <thead>
-    <tr>
-      <th>Model or Recommendation System</th>
-      <th>Accuracy</th>
-      <th>Comparison with Relevant Literature</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td>Short-Chunk Convolutional Neural Network with Residual Connections</td>
-      <td>74.4%</td>
-      <td>2.9% increase </td>
-    </tr>
-  	<tr>
-      <td>Convolutional Recurrent Neural Network</td>
-      <td>84.1%</td>
-      <td>3% decrease </td>
-    </tr>
-    <tr>
-      <td>Objective Evaluation of Recommendations</td>
-      <td>62.3%</td>
-      <td>N/A</td>
-    </tr>
-    <tr>
-      <td>Subjective Evaluation of Recommendations</td>
-      <td>70%</td>
-      <td>N/A</td>
-    </tr>
-  </tbody>
-</table>
-</details>
+<summary>Instructions for setup and execution</summary>
 
-
-
-
-
-
-
-
-
-
-
-
-
-## How to reproduce the research project
-
-<details>
-<summary><b>📌 Instructions</b></summary>
-
+  
 **1)**: Clone the repository:
 
 ```sh
@@ -114,6 +84,7 @@ Create a pip virtual environment and install all the packages for data preproces
     ```
 
 **3)**: Retrieve spotify data, and preprocess data (For detailed instructions, see `README.md` file under the Dataset-Creation-And-Preprocessing folder)
+
 **4)**: Choose one of the following options:
 
 - Train the model (For detailed instructions, see the `README.md` file under the CRNN-Model and Short-ChunkCNNRes-Model folder)
@@ -121,10 +92,13 @@ Create a pip virtual environment and install all the packages for data preproces
 
 </details>
 
+## 🔨 Repository Structure
 
-## Repository Structure
 <details>
-<summary><b>🔨 Structure</b></summary>
+<summary>Detailed overview of the project structure</summary>
+
+
+- Here's a brief outline of the project directories and files, providing insights into how the project is organized.
 
 ```
 │
@@ -164,3 +138,5 @@ Create a pip virtual environment and install all the packages for data preproces
                                              the environment used in the research project
 
 ```
+</details>
+
